@@ -16,7 +16,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		595CE8562A4EADB700D13DA5 /* Quasi-3D-Reconstruction.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Quasi-3D-Reconstruction.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		595CE8562A4EADB700D13DA5 /* wonderland.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = wonderland.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		595CE8592A4EADB700D13DA5 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		595CE85B2A4EADB700D13DA5 /* art.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = art.scnassets; sourceTree = "<group>"; };
 		595CE85D2A4EADB700D13DA5 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -39,7 +39,7 @@
 		595CE84D2A4EADB700D13DA5 = {
 			isa = PBXGroup;
 			children = (
-				595CE8582A4EADB700D13DA5 /* Quasi-3D-Reconstruction */,
+				595CE8582A4EADB700D13DA5 /* wonderland */,
 				595CE8572A4EADB700D13DA5 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -47,12 +47,12 @@
 		595CE8572A4EADB700D13DA5 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				595CE8562A4EADB700D13DA5 /* Quasi-3D-Reconstruction.app */,
+				595CE8562A4EADB700D13DA5 /* wonderland.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		595CE8582A4EADB700D13DA5 /* Quasi-3D-Reconstruction */ = {
+		595CE8582A4EADB700D13DA5 /* wonderland */ = {
 			isa = PBXGroup;
 			children = (
 				595CE8592A4EADB700D13DA5 /* AppDelegate.swift */,
@@ -62,15 +62,15 @@
 				595CE8622A4EADCF00D13DA5 /* Assets.xcassets */,
 				595CE8642A4EADCF00D13DA5 /* LaunchScreen.storyboard */,
 			);
-			path = Quasi-3D-Reconstruction;
+			path = wonderland;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		595CE8552A4EADB700D13DA5 /* Quasi-3D-Reconstruction */ = {
+		595CE8552A4EADB700D13DA5 /* wonderland */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 595CE8692A4EADCF00D13DA5 /* Build configuration list for PBXNativeTarget "Quasi-3D-Reconstruction" */;
+			buildConfigurationList = 595CE8692A4EADCF00D13DA5 /* Build configuration list for PBXNativeTarget "wonderland" */;
 			buildPhases = (
 				595CE8522A4EADB700D13DA5 /* Sources */,
 				595CE8532A4EADB700D13DA5 /* Frameworks */,
@@ -80,9 +80,9 @@
 			);
 			dependencies = (
 			);
-			name = Quasi-3D-Reconstruction;
-			productName = Quasi-3D-Reconstruction;
-			productReference = 595CE8562A4EADB700D13DA5 /* Quasi-3D-Reconstruction.app */;
+			name = wonderland;
+			productName = wonderland;
+			productReference = 595CE8562A4EADB700D13DA5 /* wonderland.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -100,7 +100,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 595CE8512A4EADB700D13DA5 /* Build configuration list for PBXProject "Quasi-3D-Reconstruction" */;
+			buildConfigurationList = 595CE8512A4EADB700D13DA5 /* Build configuration list for PBXProject "wonderland" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -113,7 +113,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				595CE8552A4EADB700D13DA5 /* Quasi-3D-Reconstruction */,
+				595CE8552A4EADB700D13DA5 /* wonderland */,
 			);
 		};
 /* End PBXProject section */
@@ -301,7 +301,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = nibuiro.Quasi-3D-Reconstruction;
+				PRODUCT_BUNDLE_IDENTIFIER = nibuiro.wonderland;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -332,7 +332,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = nibuiro.Quasi-3D-Reconstruction;
+				PRODUCT_BUNDLE_IDENTIFIER = nibuiro.wonderland;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -343,7 +343,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		595CE8512A4EADB700D13DA5 /* Build configuration list for PBXProject "Quasi-3D-Reconstruction" */ = {
+		595CE8512A4EADB700D13DA5 /* Build configuration list for PBXProject "wonderland" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				595CE8672A4EADCF00D13DA5 /* Debug */,
@@ -352,7 +352,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		595CE8692A4EADCF00D13DA5 /* Build configuration list for PBXNativeTarget "Quasi-3D-Reconstruction" */ = {
+		595CE8692A4EADCF00D13DA5 /* Build configuration list for PBXNativeTarget "wonderland" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				595CE86A2A4EADCF00D13DA5 /* Debug */,
