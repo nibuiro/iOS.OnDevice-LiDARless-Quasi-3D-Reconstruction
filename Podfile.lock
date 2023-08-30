@@ -1,0 +1,16 @@
+PODS:
+  - Euclid (0.6.17)
+
+DEPENDENCIES:
+  - Euclid (~> 0.6)
+
+SPEC REPOS:
+  trunk:
+    - Euclid
+
+SPEC CHECKSUMS:
+  Euclid: da432c77044f9ee47276691edc4ad9dde1f8d228
+
+PODFILE CHECKSUM: 7239b399c98cd1ef2732788eda3574d4fbc71c3d
+
+COCOAPODS: 1.12.1

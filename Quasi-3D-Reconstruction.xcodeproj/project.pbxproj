@@ -7,15 +7,33 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2A5B23BBAB4031BB38A39491 /* Pods_Quasi-3D-Reconstruction.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E6CD6D43AE6C7C23F63765D /* Pods_Quasi-3D-Reconstruction.framework */; };
+		593FBEB72A8230D4005916D0 /* ExtractObjectOutlines.swift in Sources */ = {isa = PBXBuildFile; fileRef = 593FBEB62A8230D4005916D0 /* ExtractObjectOutlines.swift */; };
+		593FBEBA2A86118B005916D0 /* CGPath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 593FBEB92A86118B005916D0 /* CGPath.swift */; };
+		595B1FE02A7416710059D19F /* RecordingGuideUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 595B1FDF2A7416710059D19F /* RecordingGuideUI.swift */; };
+		595B1FE22A7416C50059D19F /* ImageData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 595B1FE12A7416C50059D19F /* ImageData.swift */; };
+		595B1FE42A74174A0059D19F /* Actions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 595B1FE32A74174A0059D19F /* Actions.swift */; };
+		595B1FE62A74C65C0059D19F /* ViewController+ARSessionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 595B1FE52A74C65C0059D19F /* ViewController+ARSessionDelegate.swift */; };
+		595B1FEB2A76A46E0059D19F /* u2net.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 595B1FEA2A76A46E0059D19F /* u2net.mlmodel */; };
 		595CE85A2A4EADB700D13DA5 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 595CE8592A4EADB700D13DA5 /* AppDelegate.swift */; };
 		595CE85C2A4EADB700D13DA5 /* art.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = 595CE85B2A4EADB700D13DA5 /* art.scnassets */; };
 		595CE85E2A4EADB700D13DA5 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 595CE85D2A4EADB700D13DA5 /* ViewController.swift */; };
 		595CE8612A4EADB700D13DA5 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 595CE85F2A4EADB700D13DA5 /* Main.storyboard */; };
 		595CE8632A4EADCF00D13DA5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 595CE8622A4EADCF00D13DA5 /* Assets.xcassets */; };
 		595CE8662A4EADCF00D13DA5 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 595CE8642A4EADCF00D13DA5 /* LaunchScreen.storyboard */; };
+		598299C22A9C8DF900C81714 /* export-mesh.swift in Sources */ = {isa = PBXBuildFile; fileRef = 598299C12A9C8DF800C81714 /* export-mesh.swift */; };
+		598299C42A9CE4AF00C81714 /* CIImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 598299C32A9CE4AF00C81714 /* CIImage.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		3E6CD6D43AE6C7C23F63765D /* Pods_Quasi-3D-Reconstruction.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Quasi-3D-Reconstruction.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		593FBEB62A8230D4005916D0 /* ExtractObjectOutlines.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtractObjectOutlines.swift; sourceTree = "<group>"; };
+		593FBEB92A86118B005916D0 /* CGPath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGPath.swift; sourceTree = "<group>"; };
+		595B1FDF2A7416710059D19F /* RecordingGuideUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingGuideUI.swift; sourceTree = "<group>"; };
+		595B1FE12A7416C50059D19F /* ImageData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageData.swift; sourceTree = "<group>"; };
+		595B1FE32A74174A0059D19F /* Actions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Actions.swift; sourceTree = "<group>"; };
+		595B1FE52A74C65C0059D19F /* ViewController+ARSessionDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ViewController+ARSessionDelegate.swift"; sourceTree = "<group>"; };
+		595B1FEA2A76A46E0059D19F /* u2net.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = u2net.mlmodel; sourceTree = "<group>"; };
 		595CE8562A4EADB700D13DA5 /* Quasi-3D-Reconstruction.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Quasi-3D-Reconstruction.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		595CE8592A4EADB700D13DA5 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		595CE85B2A4EADB700D13DA5 /* art.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = art.scnassets; sourceTree = "<group>"; };
@@ -23,6 +41,10 @@
 		595CE8602A4EADB700D13DA5 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		595CE8622A4EADCF00D13DA5 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		595CE8652A4EADCF00D13DA5 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		598299C12A9C8DF800C81714 /* export-mesh.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "export-mesh.swift"; sourceTree = "<group>"; };
+		598299C32A9CE4AF00C81714 /* CIImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CIImage.swift; sourceTree = "<group>"; };
+		AD093C931D01528D9BC1ACC9 /* Pods-Quasi-3D-Reconstruction.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Quasi-3D-Reconstruction.debug.xcconfig"; path = "Target Support Files/Pods-Quasi-3D-Reconstruction/Pods-Quasi-3D-Reconstruction.debug.xcconfig"; sourceTree = "<group>"; };
+		B9E65DAE30FF56A4D1AABF4E /* Pods-Quasi-3D-Reconstruction.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Quasi-3D-Reconstruction.release.xcconfig"; path = "Target Support Files/Pods-Quasi-3D-Reconstruction/Pods-Quasi-3D-Reconstruction.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -30,17 +52,65 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2A5B23BBAB4031BB38A39491 /* Pods_Quasi-3D-Reconstruction.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		332926F5F12DB82938F1A31C /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				3E6CD6D43AE6C7C23F63765D /* Pods_Quasi-3D-Reconstruction.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		593FBEB52A8230BE005916D0 /* ImageProcessing */ = {
+			isa = PBXGroup;
+			children = (
+				593FBEB62A8230D4005916D0 /* ExtractObjectOutlines.swift */,
+			);
+			path = ImageProcessing;
+			sourceTree = "<group>";
+		};
+		593FBEB82A861149005916D0 /* Extension */ = {
+			isa = PBXGroup;
+			children = (
+				593FBEB92A86118B005916D0 /* CGPath.swift */,
+				598299C32A9CE4AF00C81714 /* CIImage.swift */,
+			);
+			path = Extension;
+			sourceTree = "<group>";
+		};
+		595B1FDE2A74160F0059D19F /* Quasi-3D-Reconstruction */ = {
+			isa = PBXGroup;
+			children = (
+				595B1FDF2A7416710059D19F /* RecordingGuideUI.swift */,
+				595B1FE12A7416C50059D19F /* ImageData.swift */,
+				595B1FE32A74174A0059D19F /* Actions.swift */,
+			);
+			path = "Quasi-3D-Reconstruction";
+			sourceTree = "<group>";
+		};
+		595B1FE72A7543230059D19F /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				595CE8592A4EADB700D13DA5 /* AppDelegate.swift */,
+				595CE85D2A4EADB700D13DA5 /* ViewController.swift */,
+				595B1FE52A74C65C0059D19F /* ViewController+ARSessionDelegate.swift */,
+			);
+			path = Controllers;
+			sourceTree = "<group>";
+		};
 		595CE84D2A4EADB700D13DA5 = {
 			isa = PBXGroup;
 			children = (
 				595CE8582A4EADB700D13DA5 /* Quasi-3D-Reconstruction */,
 				595CE8572A4EADB700D13DA5 /* Products */,
+				C8CA4AAA21D5A7DEC1FEB41E /* Pods */,
+				332926F5F12DB82938F1A31C /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -55,14 +125,27 @@
 		595CE8582A4EADB700D13DA5 /* Quasi-3D-Reconstruction */ = {
 			isa = PBXGroup;
 			children = (
-				595CE8592A4EADB700D13DA5 /* AppDelegate.swift */,
+				593FBEB82A861149005916D0 /* Extension */,
+				593FBEB52A8230BE005916D0 /* ImageProcessing */,
+				595B1FE72A7543230059D19F /* Controllers */,
+				595B1FDE2A74160F0059D19F /* Quasi-3D-Reconstruction */,
 				595CE85B2A4EADB700D13DA5 /* art.scnassets */,
-				595CE85D2A4EADB700D13DA5 /* ViewController.swift */,
 				595CE85F2A4EADB700D13DA5 /* Main.storyboard */,
 				595CE8622A4EADCF00D13DA5 /* Assets.xcassets */,
 				595CE8642A4EADCF00D13DA5 /* LaunchScreen.storyboard */,
+				595B1FEA2A76A46E0059D19F /* u2net.mlmodel */,
+				598299C12A9C8DF800C81714 /* export-mesh.swift */,
 			);
 			path = Quasi-3D-Reconstruction;
+			sourceTree = "<group>";
+		};
+		C8CA4AAA21D5A7DEC1FEB41E /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				AD093C931D01528D9BC1ACC9 /* Pods-Quasi-3D-Reconstruction.debug.xcconfig */,
+				B9E65DAE30FF56A4D1AABF4E /* Pods-Quasi-3D-Reconstruction.release.xcconfig */,
+			);
+			path = Pods;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -72,9 +155,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 595CE8692A4EADCF00D13DA5 /* Build configuration list for PBXNativeTarget "Quasi-3D-Reconstruction" */;
 			buildPhases = (
+				98A925FFB071363716501A10 /* [CP] Check Pods Manifest.lock */,
 				595CE8522A4EADB700D13DA5 /* Sources */,
 				595CE8532A4EADB700D13DA5 /* Frameworks */,
 				595CE8542A4EADB700D13DA5 /* Resources */,
+				2D475C300500ABFA9F6D1EBE /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -132,13 +217,64 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		2D475C300500ABFA9F6D1EBE /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Quasi-3D-Reconstruction/Pods-Quasi-3D-Reconstruction-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Quasi-3D-Reconstruction/Pods-Quasi-3D-Reconstruction-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Quasi-3D-Reconstruction/Pods-Quasi-3D-Reconstruction-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		98A925FFB071363716501A10 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Quasi-3D-Reconstruction-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		595CE8522A4EADB700D13DA5 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				598299C42A9CE4AF00C81714 /* CIImage.swift in Sources */,
+				595B1FE42A74174A0059D19F /* Actions.swift in Sources */,
+				595B1FE02A7416710059D19F /* RecordingGuideUI.swift in Sources */,
+				593FBEBA2A86118B005916D0 /* CGPath.swift in Sources */,
 				595CE85E2A4EADB700D13DA5 /* ViewController.swift in Sources */,
+				595B1FEB2A76A46E0059D19F /* u2net.mlmodel in Sources */,
+				598299C22A9C8DF900C81714 /* export-mesh.swift in Sources */,
+				595B1FE62A74C65C0059D19F /* ViewController+ARSessionDelegate.swift in Sources */,
+				595B1FE22A7416C50059D19F /* ImageData.swift in Sources */,
 				595CE85A2A4EADB700D13DA5 /* AppDelegate.swift in Sources */,
+				593FBEB72A8230D4005916D0 /* ExtractObjectOutlines.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -280,6 +416,7 @@
 		};
 		595CE86A2A4EADCF00D13DA5 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = AD093C931D01528D9BC1ACC9 /* Pods-Quasi-3D-Reconstruction.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -295,7 +432,7 @@
 				INFOPLIST_KEY_UIStatusBarHidden = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -311,6 +448,7 @@
 		};
 		595CE86B2A4EADCF00D13DA5 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = B9E65DAE30FF56A4D1AABF4E /* Pods-Quasi-3D-Reconstruction.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -326,7 +464,7 @@
 				INFOPLIST_KEY_UIStatusBarHidden = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

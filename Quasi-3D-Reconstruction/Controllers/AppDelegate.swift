@@ -2,7 +2,7 @@
 //  AppDelegate.swift
 //  Quasi-3D-Reconstruction
 //
-//  Created by user01 on 2023/06/29.
+//  Created by nibuiro on 2023/06/29.
 //
 
 import UIKit
