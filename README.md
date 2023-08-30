@@ -1,4 +1,4 @@
-# wonderland
+# Quasi-3D-Reconstruction
 
 
 
@@ -15,14 +15,14 @@ Already a pro? Just edit this README.md and make it your own. Want to make it ea
 
 ```
 cd existing_repo
-git remote add origin https://gitlab.com/mental-health-care/wonderland.git
+git remote add origin https://gitlab.com/mental-health-care/Quasi-3D-Reconstruction.git
 git branch -M main
 git push -uf origin main
 ```
 
 ## Integrate with your tools
 
-- [ ] [Set up project integrations](https://gitlab.com/mental-health-care/wonderland/-/settings/integrations)
+- [ ] [Set up project integrations](https://gitlab.com/mental-health-care/Quasi-3D-Reconstruction/-/settings/integrations)
 
 ## Collaborate with your team
 

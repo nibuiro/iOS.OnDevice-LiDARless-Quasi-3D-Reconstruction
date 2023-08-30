@@ -1,6 +1,6 @@
 //
 //  AppDelegate.swift
-//  wonderland
+//  Quasi-3D-Reconstruction
 //
 //  Created by user01 on 2023/06/29.
 //
