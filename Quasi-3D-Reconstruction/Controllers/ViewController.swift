@@ -16,16 +16,22 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     
     let focusMarker : FocusMarker = FocusMarker()
     let imageData : ImageData = ImageData()
+    var objectCenterPosition :SIMD3<Float> = SIMD3(0,0,0)
     let startTime: Int64 = Int64(NSDate().timeIntervalSince1970)
     
     var dbgMem001 = true
+    var dbgMeM002: Int64 = Int64(NSDate().timeIntervalSince1970)
     
     var visonRequest: VNCoreMLRequest?
+    var arPlaneAnchorPosition :SIMD3<Float> = SIMD3(0,0,0)
+    var isARPlaneAnchorPositionObtained: Bool = false
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         // Set the view's delegate
+        sceneView.delegate = self
         sceneView.session.delegate = self
 
         // Show statistics such as fps and timing information
@@ -58,36 +64,49 @@ class ViewController: UIViewController, ARSCNViewDelegate {
 //            print("Unable to place objects when the planes are not ready...")
 //            return
 //        }
-        var successToGetTouchedPosition :Bool = false
-        var touchedLocationPosition :SIMD3<Float> = SIMD3(0, 0, 0)
+        var isTouchedPositionObtained :Bool = false
+        var touchedPosition :SIMD3<Float> = SIMD3(0, 0, 0)
         
         if let touchedLocation = touches.first?.location(in: sceneView) {
             guard let query = sceneView.raycastQuery(from: touchedLocation, allowing: .estimatedPlane, alignment: .any) else { return }
             let results = sceneView.session.raycast(query)
             if let hitTestResult = results.first {
-                successToGetTouchedPosition = true
-                touchedLocationPosition = simd_make_float3(hitTestResult.worldTransform.columns.3)
-                print(touchedLocationPosition)
+                isTouchedPositionObtained = true
+                touchedPosition = simd_make_float3(hitTestResult.worldTransform.columns.3)
+                print(touchedPosition)
             }
             
         }
         
-        if successToGetTouchedPosition {
-            focusMarker.update(at: touchedLocationPosition)
+        if isTouchedPositionObtained {
+            focusMarker.update(at: touchedPosition)
         }
+        
+        if isTouchedPositionObtained && isARPlaneAnchorPositionObtained {
+            objectCenterPosition = touchedPosition
+            //plane+(tap-plane)/2
+            objectCenterPosition.y = arPlaneAnchorPosition.y + (touchedPosition.y - arPlaneAnchorPosition.y) / 2
+            print("objectCenterPosition: ", objectCenterPosition)
+        }
+
         
     }
     
     // MARK: - ARSCNViewDelegate
     
-/*
-    // Override to create and configure nodes for anchors added to the view's session.
-    func renderer(_ renderer: SCNSceneRenderer, nodeFor anchor: ARAnchor) -> SCNNode? {
-        let node = SCNNode()
-     
-        return node
+    func renderer(_ renderer: SCNSceneRenderer, willUpdate node: SCNNode, for anchor: ARAnchor) {
+        if 2 > (Int64(NSDate().timeIntervalSince1970) - dbgMeM002) {
+            return
+        }
+        dbgMeM002 = Int64(NSDate().timeIntervalSince1970)
+        if let planeAnchor = anchor as? ARPlaneAnchor {
+            //World coordinates of ARPlaneAnchor
+            self.arPlaneAnchorPosition = simd_make_float3(anchor.transform.columns.3) + simd_make_float3(planeAnchor.center)
+            self.isARPlaneAnchorPositionObtained = true
+            print(self.arPlaneAnchorPosition, simd_make_float3(anchor.transform.columns.3), simd_make_float3(planeAnchor.center))
+        }
     }
-*/
+
     
     func session(_ session: ARSession, didFailWithError error: Error) {
         // Present an error message to the user

@@ -18,10 +18,10 @@ class FocusMarker {
         let redDotMaterial = SCNMaterial()
         redDotMaterial.diffuse.contents = UIColor.red
         redDotGeometry.materials = [redDotMaterial]
-        //focusMarker.geometry = redDotGeometry
+        focusMarker.geometry = redDotGeometry
         focusMarker.isHidden = true
-        //sceneView.scene.rootNode
-        //parentNode.addChildNode(focusMarker)
+        //expected parentNode: sceneView.scene.rootNode
+        parentNode.addChildNode(focusMarker)
     }
 
     func update(at position:SIMD3<Float>) {
