@@ -23,6 +23,8 @@
 		595CE8662A4EADCF00D13DA5 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 595CE8642A4EADCF00D13DA5 /* LaunchScreen.storyboard */; };
 		598299C22A9C8DF900C81714 /* export-mesh.swift in Sources */ = {isa = PBXBuildFile; fileRef = 598299C12A9C8DF800C81714 /* export-mesh.swift */; };
 		598299C42A9CE4AF00C81714 /* CIImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 598299C32A9CE4AF00C81714 /* CIImage.swift */; };
+		598299EC2AA3312F00C81714 /* SCNVector3.swift in Sources */ = {isa = PBXBuildFile; fileRef = 598299EB2AA3312F00C81714 /* SCNVector3.swift */; };
+		598299EE2AA39A7000C81714 /* SIMD3.swift in Sources */ = {isa = PBXBuildFile; fileRef = 598299ED2AA39A7000C81714 /* SIMD3.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -43,6 +45,8 @@
 		595CE8652A4EADCF00D13DA5 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		598299C12A9C8DF800C81714 /* export-mesh.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "export-mesh.swift"; sourceTree = "<group>"; };
 		598299C32A9CE4AF00C81714 /* CIImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CIImage.swift; sourceTree = "<group>"; };
+		598299EB2AA3312F00C81714 /* SCNVector3.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SCNVector3.swift; sourceTree = "<group>"; };
+		598299ED2AA39A7000C81714 /* SIMD3.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SIMD3.swift; sourceTree = "<group>"; };
 		AD093C931D01528D9BC1ACC9 /* Pods-Quasi-3D-Reconstruction.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Quasi-3D-Reconstruction.debug.xcconfig"; path = "Target Support Files/Pods-Quasi-3D-Reconstruction/Pods-Quasi-3D-Reconstruction.debug.xcconfig"; sourceTree = "<group>"; };
 		B9E65DAE30FF56A4D1AABF4E /* Pods-Quasi-3D-Reconstruction.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Quasi-3D-Reconstruction.release.xcconfig"; path = "Target Support Files/Pods-Quasi-3D-Reconstruction/Pods-Quasi-3D-Reconstruction.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -80,6 +84,8 @@
 			children = (
 				593FBEB92A86118B005916D0 /* CGPath.swift */,
 				598299C32A9CE4AF00C81714 /* CIImage.swift */,
+				598299EB2AA3312F00C81714 /* SCNVector3.swift */,
+				598299ED2AA39A7000C81714 /* SIMD3.swift */,
 			);
 			path = Extension;
 			sourceTree = "<group>";
@@ -277,8 +283,10 @@
 				595B1FE02A7416710059D19F /* RecordingGuideUI.swift in Sources */,
 				593FBEBA2A86118B005916D0 /* CGPath.swift in Sources */,
 				595CE85E2A4EADB700D13DA5 /* ViewController.swift in Sources */,
+				598299EC2AA3312F00C81714 /* SCNVector3.swift in Sources */,
 				595B1FEB2A76A46E0059D19F /* u2net.mlmodel in Sources */,
 				598299C22A9C8DF900C81714 /* export-mesh.swift in Sources */,
+				598299EE2AA39A7000C81714 /* SIMD3.swift in Sources */,
 				595B1FE62A74C65C0059D19F /* ViewController+ARSessionDelegate.swift in Sources */,
 				595B1FE22A7416C50059D19F /* ImageData.swift in Sources */,
 				595CE85A2A4EADB700D13DA5 /* AppDelegate.swift in Sources */,

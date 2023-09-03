@@ -16,14 +16,25 @@ extension ViewController: ARSessionDelegate {
         let devicePosition : SIMD3<Float> = simd_make_float3(frame.camera.transform.columns.3)
         let timestamp : Int64 = Int64(NSDate().timeIntervalSince1970)
         
+        if nil != measureRelativeObjectScale {
+            print("measureRelativeObjectScale: ", measureRelativeObjectScale!())
+        }
+        
+        
         if ((startTime + 10) < timestamp) && (timestamp < (startTime + 12)) {
             let objectCenterPositionOnScreen = sceneView.projectPoint(SCNVector3(objectCenterPosition))
-            print(objectCenterPositionOnScreen)
+            let normalizedObjectCenterPositionOnScreen = (
+                x: (0.25 * objectCenterPositionOnScreen.x) / Float(image.extent.size.width),
+                y: (0.4 * objectCenterPositionOnScreen.y) / Float(image.extent.size.height)
+            )
+            
+            let eulerAngles = frame.camera.eulerAngles
+            
             imageData.append(position: devicePosition, image: image, timestamp: timestamp)
             return
         }
         if ((startTime + 12) < timestamp) && dbgMem001 {
-            let generated = makeGenerallyAccurate3dMesh(imageData: imageData)
+            //let generated = makeGenerallyAccurate3dMesh(imageData: imageData)
             //focusMarker.focusMarker.geometry = generated
             //exportMesh(generated, withName: "generated")
             //sceneView.scene.rootNode.addChildNode(focusMarker.focusMarker)

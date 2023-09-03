@@ -18,23 +18,30 @@ import CoreImage
 import CoreImage.CIFilterBuiltins
 import Euclid
 
-/*
-class binarizer: CIFilter, CIColorThreshold {
+
+func setupScaleMesure(sceneView: ARSCNView, referencePosition: SIMD3<Float>) -> () -> Float {
     
-    var inputImage: CIImage?
-    var threshold: Float
+    guard let camera = sceneView.pointOfView else { abort() }
     
-    init(_ inputImage: CIImage, threshold : Float)
-    {
-        self.inputImage = inputImage
-        self.threshold = threshold
-        super.init(name: "CIColorThreshold")
+    let left = SIMD3<Float>(0.05, 0 ,0)
+    
+    let measure = (simd_float3(sceneView.projectPoint(SCNVector3(referencePosition))) - simd_float3(sceneView.projectPoint(SCNVector3(referencePosition + left))))
+    let referenceLength = length(simd_make_float2(measure.x, measure.y))
+    let referenceEulerAngles = camera.eulerAngles
+    
+    return {
+        let rotate = camera.eulerAngles - referenceEulerAngles
+        print("rotate: ", rotate)
+        let R = simd_make_rotate3(x: rotate.x, y: rotate.y, z: rotate.z)
+        print("rotated left", R * left)
+        let measure = simd_float3(sceneView.projectPoint(SCNVector3(referencePosition))) - simd_float3(sceneView.projectPoint(SCNVector3(referencePosition + R * left)))
+        let currentLength = length(simd_make_float2(measure.x, measure.y))
+        
+        let currentScale = currentLength / referenceLength
+        return currentScale
     }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-}*/
+}
+
 let deg2rad = (Float.pi * 2) / 360
 /*
  ,
@@ -59,15 +66,18 @@ func makeGenerallyAccurate3dMesh(imageData :ImageData) -> SCNGeometry
     let i = 0
     let srcImage : CIImage = imageData.images[i]
     
-    print(srcImage.extent.size.height, srcImage.extent.size.width)
+   // print(srcImage.extent.size.height, srcImage.extent.size.width)
     
     let outlines : [VNContoursObservation] = extractObjectOutlines(srcImage)
     let targetOutline: CGPath = selectLongestPath(observations: outlines)
-    print(targetOutline)
+    //print(targetOutline)
     //let mesh: Mesh = extrudePath(shapePath: targetOutline)
     let polygon = Mesh(SCNShape(path: UIBezierPath(cgPath: targetOutline), extrusionDepth:2.0))?.translated(by: Vector(-1,0,0))
     return SCNGeometry(polygon!)
 }
+
+
+
 
 
 

@@ -16,7 +16,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     
     let focusMarker : FocusMarker = FocusMarker()
     let imageData : ImageData = ImageData()
-    var objectCenterPosition :SIMD3<Float> = SIMD3(0,0,0)
+    var objectCenterPosition :SIMD3<Float> = SIMD3<Float>(0,0,0)
     let startTime: Int64 = Int64(NSDate().timeIntervalSince1970)
     
     var dbgMem001 = true
@@ -25,7 +25,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     var visonRequest: VNCoreMLRequest?
     var arPlaneAnchorPosition :SIMD3<Float> = SIMD3(0,0,0)
     var isARPlaneAnchorPositionObtained: Bool = false
-
+    
+    var measureRelativeObjectScale: (() -> Float)?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -42,6 +43,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        
         
         // Create a session configuration
         let configuration = ARWorldTrackingConfiguration()
@@ -73,7 +75,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
             if let hitTestResult = results.first {
                 isTouchedPositionObtained = true
                 touchedPosition = simd_make_float3(hitTestResult.worldTransform.columns.3)
-                print(touchedPosition)
+                //print(touchedPosition)
             }
             
         }
@@ -83,10 +85,14 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         }
         
         if isTouchedPositionObtained && isARPlaneAnchorPositionObtained {
-            objectCenterPosition = touchedPosition
-            //plane+(tap-plane)/2
-            objectCenterPosition.y = arPlaneAnchorPosition.y + (touchedPosition.y - arPlaneAnchorPosition.y) / 2
-            print("objectCenterPosition: ", objectCenterPosition)
+            objectCenterPosition = SIMD3<Float>(
+                touchedPosition.x,
+                //plane+(tap-plane)/2
+                arPlaneAnchorPosition.y + (touchedPosition.y - arPlaneAnchorPosition.y) / 2, 
+                touchedPosition.z
+            )
+            measureRelativeObjectScale = setupScaleMesure(sceneView: sceneView, referencePosition: objectCenterPosition)
+            //print("objectCenterPosition: ", objectCenterPosition)
         }
 
         
@@ -103,7 +109,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
             //World coordinates of ARPlaneAnchor
             self.arPlaneAnchorPosition = simd_make_float3(anchor.transform.columns.3) + simd_make_float3(planeAnchor.center)
             self.isARPlaneAnchorPositionObtained = true
-            print(self.arPlaneAnchorPosition, simd_make_float3(anchor.transform.columns.3), simd_make_float3(planeAnchor.center))
+            //print(self.arPlaneAnchorPosition, simd_make_float3(anchor.transform.columns.3), simd_make_float3(planeAnchor.center))
         }
     }
 
