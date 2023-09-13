@@ -7,7 +7,8 @@
 
 import simd
 
-func simd_make_rotate3(x: Float, y: Float, z: Float) -> simd_float3x3 {
+func simd_make_rotate3(x: Float, y: Float, z: Float) -> simd_float3x3
+{
     let Rz = simd_float3x3(
         SIMD3<Float>(cos(z), sin(z), 0),
         SIMD3<Float>(-sin(z), cos(z), 0),
@@ -27,4 +28,22 @@ func simd_make_rotate3(x: Float, y: Float, z: Float) -> simd_float3x3 {
     let Rzyx = Rz * Ry * Rx
     
     return Rzyx
+}
+
+func simd_make_rotate3(angle: Float, axis: SIMD3<Float>) -> simd_float3x3
+{
+    let cosθ = cos(angle)
+    let sinθ = sin(angle)
+    let K = simd_make_cross_product_operator3(n: axis)
+    let R = matrix_identity_float3x3 + sinθ * K + (1 - cosθ) * K**2
+    return R
+}
+
+func simd_make_cross_product_operator3(n: SIMD3<Float>) -> simd_float3x3
+{
+    let K = simd_float3x3(SIMD3<Float>(0, n.x, -n.y),
+                          SIMD3<Float>(-n.z, 0, n.x),
+                          SIMD3<Float>(n.y, -n.x, 0))
+    
+    return K
 }
