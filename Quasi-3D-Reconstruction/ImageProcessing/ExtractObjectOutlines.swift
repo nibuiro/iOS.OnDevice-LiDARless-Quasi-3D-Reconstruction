@@ -38,7 +38,6 @@ func setupExtractObjectOutlines() -> (CIImage) -> [VNContoursObservation] {
         try? handler.perform([visonRequest])
             
         let ciImage : CIImage = CIImage(cvPixelBuffer: pred!, options: [:])//.resizeAffine(scaleX: 5, scaleY: 1)!
-        print(ciImage.extent.size.height, ciImage.extent.size.width)
         ciFilter?.setValue(ciImage, forKey: kCIInputImageKey)
     
         let requestHandler = VNImageRequestHandler.init(ciImage: (ciFilter?.outputImage)!, options: [:])
@@ -57,7 +56,6 @@ func selectLongestPath(observations:[VNContoursObservation]) -> CGPath {
     var longestPath: CGPath = observations[0].topLevelContours[0].normalizedPath
     observations.forEach { observation in
         observation.topLevelContours.forEach { counter in
-            print(counter.normalizedPath, counter.normalizedPath.numberOfPoints)
             let length = counter.normalizedPath.numberOfPoints
             if length > longestPathLength {
                 longestPathLength = length

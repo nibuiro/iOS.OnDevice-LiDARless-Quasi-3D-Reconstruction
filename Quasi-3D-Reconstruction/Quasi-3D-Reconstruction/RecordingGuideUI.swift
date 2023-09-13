@@ -11,7 +11,7 @@ import ARKit
 class FocusMarker {
     //willScanObjectMarker
     var focusMarker :SCNNode = SCNNode()
-    var currentFocusMarkerPosition :SIMD3<Float> = SIMD3(Float.infinity, Float.infinity, Float.infinity)
+    var currentMarkerPosition :SIMD3<Float> = SIMD3(Float.infinity, Float.infinity, Float.infinity)
     
     func initialize(parentNode: SCNNode) {
         let redDotGeometry = SCNSphere(radius: 0.003)
@@ -26,12 +26,12 @@ class FocusMarker {
 
     func update(at position:SIMD3<Float>) {
         defer {
-            currentFocusMarkerPosition = position
+            currentMarkerPosition = position
         }
         
         let scnPosition :SCNVector3 = SCNVector3(position)
         //hide focusMarker if nearly point are selected two-time
-        let oldNewDistance = length(position - currentFocusMarkerPosition)
+        let oldNewDistance = length(position - currentMarkerPosition)
         if !focusMarker.isHidden && oldNewDistance <= 0.01 {
             focusMarker.isHidden = true
             return

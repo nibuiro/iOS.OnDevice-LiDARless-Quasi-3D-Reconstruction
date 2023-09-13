@@ -14,12 +14,12 @@ class ViewController: UIViewController, ARSCNViewDelegate {
 
     @IBOutlet var sceneView: ARSCNView!
     
-    let focusMarker : FocusMarker = FocusMarker()
+    let focusMarkers : [FocusMarker] = []
+    var counter = 0
     let imageData : ImageData = ImageData()
     var objectCenterPosition :SIMD3<Float> = SIMD3<Float>(0,0,0)
     let startTime: Int64 = Int64(NSDate().timeIntervalSince1970)
     
-    var dbgMem001 = true
     var dbgMeM002: Int64 = Int64(NSDate().timeIntervalSince1970)
     
     var visonRequest: VNCoreMLRequest?
@@ -27,6 +27,12 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     var isARPlaneAnchorPositionObtained: Bool = false
     
     var measureRelativeObjectScale: (() -> Float)?
+    var referenceDeviceEulerAngles: SIMD3<Float> = SIMD3<Float>(0, 0, 0)
+    
+    var dbgmem003: SCNNode = SCNNode()
+    var dbgmem004: Int = 0 //counter
+    var dbgmem005: Bool = false //isCaptureAvilable
+    var dbgmem006: Bool = false //isReadyToMakePolygon
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -38,7 +44,10 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         // Show statistics such as fps and timing information
         sceneView.showsStatistics = true
 
-        focusMarker.initialize(parentNode: sceneView.scene.rootNode)
+        for i in 0..<5 {
+            focusMarkers[i].initialize(parentNode: sceneView.scene.rootNode)
+        }
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -51,6 +60,9 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         configuration.planeDetection = .horizontal
         // Run the view's session
         sceneView.session.run(configuration)
+        if let camera = sceneView.pointOfView { // カメラを取得
+            referenceDeviceEulerAngles = SIMD3<Float>(camera.eulerAngles)
+        }
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -66,6 +78,19 @@ class ViewController: UIViewController, ARSCNViewDelegate {
 //            print("Unable to place objects when the planes are not ready...")
 //            return
 //        }
+        defer {
+            dbgmem004 += 1
+        }
+        if (1 <= dbgmem004) && (dbgmem004 <= 10) {
+            print(dbgmem004)
+            dbgmem005 = true
+        }
+        if 10 == dbgmem004 {
+            dbgmem006 = true
+        }
+        if 0 < dbgmem004 {
+            return
+        }
         var isTouchedPositionObtained :Bool = false
         var touchedPosition :SIMD3<Float> = SIMD3(0, 0, 0)
         
@@ -81,7 +106,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         }
         
         if isTouchedPositionObtained {
-            focusMarker.update(at: touchedPosition)
+            focusMarkers[counter].update(at: touchedPosition)
         }
         
         if isTouchedPositionObtained && isARPlaneAnchorPositionObtained {
@@ -91,6 +116,18 @@ class ViewController: UIViewController, ARSCNViewDelegate {
                 arPlaneAnchorPosition.y + (touchedPosition.y - arPlaneAnchorPosition.y) / 2, 
                 touchedPosition.z
             )
+            
+            let redDotGeometry = SCNSphere(radius: 0.003)
+            let redDotMaterial = SCNMaterial()
+            redDotMaterial.diffuse.contents = UIColor.blue
+            redDotGeometry.materials = [redDotMaterial]
+            let centerMarker = SCNNode()
+            centerMarker.geometry = redDotGeometry
+            centerMarker.position = SCNVector3(objectCenterPosition)
+            //expected parentNode: sceneView.scene.rootNode
+            sceneView.scene.rootNode.addChildNode(centerMarker)
+            
+            
             measureRelativeObjectScale = setupScaleMesure(sceneView: sceneView, referencePosition: objectCenterPosition)
             //print("objectCenterPosition: ", objectCenterPosition)
         }
