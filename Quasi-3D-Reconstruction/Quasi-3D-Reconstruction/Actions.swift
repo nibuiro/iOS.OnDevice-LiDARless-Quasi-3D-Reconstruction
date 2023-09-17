@@ -58,12 +58,14 @@ func makeGenerallyAccurate3dMesh(imageData :ImageData) -> SCNGeometry {
     //let referenceLength : Float = simd.length(referenceCoodinate)
     
     //let referenceFrustumHeight = 2.0 * referenceLength * tan(fieldOfView * 0.5 * deg2rad);
-    
+    let p0 = { (arr: [SIMD3<Float>]) -> SIMD3<Float> in arr[0] }
+    let p1 = { (arr: [SIMD3<Float>]) -> SIMD3<Float> in arr[1] }
     
     let extractObjectOutlines = setupExtractObjectOutlines()
     let referenceRotation = imageData.rotations[0]
     //
-    var referenceKeylines: [SIMD3<Float>] = []
+    var referenceKeylines: [[SIMD3<Float>]] = []
+    var intersectionPoints: [SIMD3<Float>] = []
     
     for i in 0..<imageData.nSamples {
         let image : CIImage = imageData.images[i] // expect front of object
@@ -78,7 +80,7 @@ func makeGenerallyAccurate3dMesh(imageData :ImageData) -> SCNGeometry {
         let node = SCNNode(mdlObject: object)
         let centerOfObject = imageData.centerOfObjects[i]
         let keypoints = imageData.keypointsList[i]
-        var scale = 1/imageData.scales[i]
+        var scale = 1 / imageData.scales[i]
         var translate = SIMD3<Float>(-(1-centerOfObject.x), -(1-centerOfObject.y), 0)
         print(scale)
         var rotate = imageData.rotations[i]
@@ -87,10 +89,11 @@ func makeGenerallyAccurate3dMesh(imageData :ImageData) -> SCNGeometry {
         rotate.z -= referenceRotation.z
         
         let R = simd_make_rotate3(x: rotate.x, y: rotate.y, z: rotate.z)
-        var keylines: [SIMD3<Float>] = []
+        var keylines: [[SIMD3<Float>]] = []
         for keypointIndex in 0..<5 {
             let keypoint = keypoints[keypointIndex] - (1 - centerOfObject)
-            keylines.append(R * SIMD3<Float>(scale * keypoint.x, scale * keypoint.y, 1))
+            keylines.append([R * SIMD3<Float>(scale * keypoint.x, scale * keypoint.y, 1),
+                             R * SIMD3<Float>(scale * keypoint.x, scale * keypoint.y, -1)])
         }
         
         
@@ -100,36 +103,52 @@ func makeGenerallyAccurate3dMesh(imageData :ImageData) -> SCNGeometry {
                 referenceKeylines.append(keylines[keylineIndex])
             }
         case 1:
-            let orthogonalVectorToKeylines = simd_cross(keylines[0], referenceKeylines[0])
-            let rotationAxis = simd_cross(orthogonalVectorToKeylines, SIMD3<Float>(1,0,0))
-            let rotation = acos(simd_dot(SIMD3<Float>(1,0,0), simd_normalize(referenceKeylines[0])))
-            let R = simd_make_rotate3(angle: rotation, axis: rotationAxis)
-            var keylinesA: [SIMD3<Float>] = []
-            var keylinesB: [SIMD3<Float>] = []
             var maxA: Float = -Float.infinity
             var minA: Float = Float.infinity
             var argmaxA: Int = 0
             var argminA: Int = 0
+            var referenceKeypointOnXYs: [SIMD3<Float>] = []
+            var KeypointOnXYs: [SIMD3<Float>] = []
             for keylineIndex in 0..<5 {
-                let lineA = R * referenceKeylines[keylineIndex]
-                let lineB = R * keylines[keylineIndex]
-                keylinesA.append(lineA)
-                keylinesB.append(lineB)
-                //↑↓ for-loop separable
-                if maxA < lineA.x {
-                    maxA = lineA.x
+                let KeypointOnXY = calcPointAtTargetZOnTheLineThrough2Points(p0: p0(keylines[keylineIndex]),
+                                                                 p1: p1(keylines[keylineIndex]),
+                                                                 targetZ: 0)
+                KeypointOnXYs.append(KeypointOnXY)
+                
+                let referenceKeypointOnXY = calcPointAtTargetZOnTheLineThrough2Points(p0: p0(referenceKeylines[keylineIndex]),
+                                                                 p1: p1(referenceKeylines[keylineIndex]),
+                                                                 targetZ: 0)
+                referenceKeypointOnXYs.append(referenceKeypointOnXY)
+                if maxA < referenceKeypointOnXY.x {
+                    maxA = referenceKeypointOnXY.x
                     argmaxA = keylineIndex
                 }
-                if minA < lineA.x {
-                    minA = lineA.x
+                if minA < referenceKeypointOnXY.x {
+                    minA = referenceKeypointOnXY.x
                     argminA = keylineIndex
                 }
             }
-            let scaleCorrectionValue: Float = (keylinesA[argmaxA].x - keylinesA[argminA].x) / (keylinesB[argmaxA].x - keylinesB[argminA].x)
-            let shiftCorrectionValue: Float = scale * (keylinesA[argmaxA].x - keylinesB[argmaxA].x)
-            let shiftCorrectionVector: SIMD3<Float> = R.transpose * SIMD3<Float>(shiftCorrectionValue, 0, 0)
+            let scaleCorrectionValue: Float = (KeypointOnXYs[argmaxA].x - KeypointOnXYs[argminA].x) / (referenceKeypointOnXYs[argmaxA].x - referenceKeypointOnXYs[argminA].x)
+            let shiftCorrectionVector = scale * (KeypointOnXYs[argmaxA] - referenceKeypointOnXYs[argmaxA])
+            
+            for keypointIndex in 0..<5 {
+                keylines[keypointIndex] = [
+                    scaleCorrectionValue * p0(keylines[keypointIndex]) + shiftCorrectionVector,
+                    scaleCorrectionValue * p1(keylines[keypointIndex]) + shiftCorrectionVector
+                ]
+            }
+            
             scale *= scaleCorrectionValue
             translate += shiftCorrectionVector
+            
+            for keypointIndex in 0..<5 {
+                let n = normalize(p1(keylines[keypointIndex]) - p0(keylines[keypointIndex]))
+                let a = SIMD3<Float>(0, 0, 0)
+                let p = p0(referenceKeylines[keypointIndex])
+                let d = p1(referenceKeylines[keypointIndex]) - p0(referenceKeylines[keypointIndex])
+                let intersectionPoint = planeLineIntersection(n: n, a: a, p0: p, d: d)
+                intersectionPoints.append(intersectionPoint)
+            }
             
         default:
             break
@@ -169,6 +188,29 @@ func makeGenerallyAccurate3dMesh(imageData :ImageData) -> SCNGeometry {
 
 
 
+func calcPointAtTargetZOnTheLineThrough2Points(p0: SIMD3<Float>, p1: SIMD3<Float>, targetZ: Float) -> SIMD3<Float> {
+    // XY平面
+    let v = p1 - p0
+    let t = (targetZ - p0.z) / v.z
+    let x = p0.x + t * v.x
+    let y = p0.y + t * v.y
+    let point = SIMD3<Float>(x, y, targetZ)
+    
+    return point
+}
 
 
-
+func planeLineIntersection(n: SIMD3<Float>, a: SIMD3<Float>, p0: SIMD3<Float>, d: SIMD3<Float>) -> SIMD3<Float> {
+    let nDotD = simd_dot(n, d)
+    
+    // normal vector and line are orthonal
+    if nDotD == 0 {
+        return SIMD3<Float>(0,0,0)
+    }
+    
+    let t = simd_dot(n, a - p0) / nDotD
+    
+    let intersectionPoint = p0 + t * d
+    
+    return intersectionPoint
+}
