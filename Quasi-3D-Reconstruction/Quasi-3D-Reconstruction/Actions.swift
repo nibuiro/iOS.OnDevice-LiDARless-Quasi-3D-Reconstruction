@@ -28,11 +28,10 @@ func setupScaleMesure(sceneView: ARSCNView, referencePosition: SIMD3<Float>) -> 
     
     let measure = (simd_float3(sceneView.projectPoint(SCNVector3(referencePosition))) - simd_float3(sceneView.projectPoint(SCNVector3(referencePosition + left))))
     let referenceLength = length(simd_make_float2(measure.x, measure.y))
-    let referenceEulerAngles = camera.eulerAngles
+    let referenceEulerAngles = simd_float3(camera.eulerAngles)
     
     return {
-        let rotate = simd_float3(camera.eulerAngles) - simd_float3(referenceEulerAngles)
-        //print("rotate: ", rotate)
+        let rotate = simd_float3(camera.eulerAngles)
         let R = simd_make_rotate3(x: rotate.x, y: rotate.y, z: rotate.z)
         //print("rotated left", R * left)
         let measure = simd_float3(sceneView.projectPoint(SCNVector3(referencePosition))) - simd_float3(sceneView.projectPoint(SCNVector3(referencePosition + R * left)))
@@ -68,9 +67,8 @@ func makeGenerallyAccurate3dMesh(imageData :ImageData) -> SCNGeometry {
     var intersectionPoints: [SIMD3<Float>] = []
     
     for i in 0..<imageData.nSamples {
-        let image : CIImage = imageData.images[i] // expect front of object
-        let outlines : [VNContoursObservation] = extractObjectOutlines(image)
-        let targetOutline = selectLongestPath(observations: outlines)
+        let image : CIImage = imageData.images[i]
+        let targetOutline = selectLongestPath(observations: extractObjectOutlines(image))
         let shape = SCNShape(path: UIBezierPath(cgPath: targetOutline), extrusionDepth:2.0)
         let mesh = MDLMesh(scnGeometry: shape)
         let asset = MDLAsset()
@@ -80,36 +78,47 @@ func makeGenerallyAccurate3dMesh(imageData :ImageData) -> SCNGeometry {
         let node = SCNNode(mdlObject: object)
         let centerOfObject = imageData.centerOfObjects[i]
         let keypoints = imageData.keypointsList[i]
-        var scale = 1 / imageData.scales[i]
+        var scale: Float = 1.0 // imageData.scales[i]
         var translate = SIMD3<Float>(-(1-centerOfObject.x), -(1-centerOfObject.y), 0)
-        print(scale)
         var rotate = imageData.rotations[i]
-        rotate.x -= referenceRotation.x
-        rotate.y -= referenceRotation.y
-        rotate.z -= referenceRotation.z
+        rotate.x = (rotate.x - referenceRotation.x)
+        rotate.y = (rotate.y - referenceRotation.y)
+        rotate.z = (rotate.z - referenceRotation.z)
         
         let R = simd_make_rotate3(x: rotate.x, y: rotate.y, z: rotate.z)
         var keylines: [[SIMD3<Float>]] = []
-        for keypointIndex in 0..<5 {
+        for keypointIndex in 0..<3 {
             let keypoint = keypoints[keypointIndex] - (1 - centerOfObject)
-            keylines.append([R * SIMD3<Float>(scale * keypoint.x, scale * keypoint.y, 1),
-                             R * SIMD3<Float>(scale * keypoint.x, scale * keypoint.y, -1)])
+            keylines.append([R * SIMD3<Float>(keypoint.x, keypoint.y, 1),
+                             R * SIMD3<Float>(keypoint.x, keypoint.y, -1)])
         }
+        
+        var transformedPolygon0 = rigidTransform3(mesh: node.geometry!,
+                                                 translateX: translate.x, translateY: translate.y, translateZ: translate.z,
+                                                 rotateX: rotate.x, rotateY: rotate.y, rotateZ: rotate.z,
+                                                 scaleX: 1, scaleY: 1, scaleZ: 1,
+                                                 minX: -1, maxX: 1, minY: -1, maxY: 1, minZ: -1, maxZ: 1,
+                                                 translateFirst: true)
+        
+        print("transformedPolygon0", translate, rotate)
         
         
         switch i {
         case 0:
-            for keylineIndex in 0..<5 {
+            for keylineIndex in 0..<3 {
                 referenceKeylines.append(keylines[keylineIndex])
             }
+            
+            exportMesh(transformedPolygon0, withName: "polygon\(i)")
         case 1:
+            print("start: 1")
             var maxA: Float = -Float.infinity
             var minA: Float = Float.infinity
             var argmaxA: Int = 0
             var argminA: Int = 0
             var referenceKeypointOnXYs: [SIMD3<Float>] = []
             var KeypointOnXYs: [SIMD3<Float>] = []
-            for keylineIndex in 0..<5 {
+            for keylineIndex in 0..<3 {
                 let KeypointOnXY = calcPointAtTargetZOnTheLineThrough2Points(p0: p0(keylines[keylineIndex]),
                                                                  p1: p1(keylines[keylineIndex]),
                                                                  targetZ: 0)
@@ -123,66 +132,103 @@ func makeGenerallyAccurate3dMesh(imageData :ImageData) -> SCNGeometry {
                     maxA = referenceKeypointOnXY.x
                     argmaxA = keylineIndex
                 }
-                if minA < referenceKeypointOnXY.x {
+                if minA > referenceKeypointOnXY.x {
                     minA = referenceKeypointOnXY.x
                     argminA = keylineIndex
                 }
             }
-            let scaleCorrectionValue: Float = (KeypointOnXYs[argmaxA].x - KeypointOnXYs[argminA].x) / (referenceKeypointOnXYs[argmaxA].x - referenceKeypointOnXYs[argminA].x)
-            let shiftCorrectionVector = scale * (KeypointOnXYs[argmaxA] - referenceKeypointOnXYs[argmaxA])
+            let scaleCorrectionValue: Float = abs(referenceKeypointOnXYs[1].x - referenceKeypointOnXYs[2].x) /  abs(KeypointOnXYs[1].x - KeypointOnXYs[2].x)
+            let shiftCorrectionVector = -(scaleCorrectionValue * KeypointOnXYs[0] - referenceKeypointOnXYs[0])
             
-            for keypointIndex in 0..<5 {
+            for keypointIndex in 0..<3 {
                 keylines[keypointIndex] = [
                     scaleCorrectionValue * p0(keylines[keypointIndex]) + shiftCorrectionVector,
                     scaleCorrectionValue * p1(keylines[keypointIndex]) + shiftCorrectionVector
                 ]
             }
             
-            scale *= scaleCorrectionValue
-            translate += shiftCorrectionVector
-            
-            for keypointIndex in 0..<5 {
+            for keypointIndex in 0..<3 {
                 let n = normalize(p1(keylines[keypointIndex]) - p0(keylines[keypointIndex]))
                 let a = SIMD3<Float>(0, 0, 0)
                 let p = p0(referenceKeylines[keypointIndex])
                 let d = p1(referenceKeylines[keypointIndex]) - p0(referenceKeylines[keypointIndex])
                 let intersectionPoint = planeLineIntersection(n: n, a: a, p0: p, d: d)
+                print(intersectionPoint)
                 intersectionPoints.append(intersectionPoint)
             }
             
+            var transformedPolygon = rigidTransform3(mesh: transformedPolygon0,
+                                                     translateX: shiftCorrectionVector.x,
+                                                     translateY: shiftCorrectionVector.y,
+                                                     translateZ: shiftCorrectionVector.z,
+                                                     rotateX: 0, rotateY: 0, rotateZ: 0,
+                                                     scaleX: scaleCorrectionValue,
+                                                     scaleY: scaleCorrectionValue,
+                                                     scaleZ: scaleCorrectionValue,
+                                                     minX: -1, maxX: 1, minY: -1, maxY: 1, minZ: -1, maxZ: 1,
+                                                     translateFirst: true)
+            
+            exportMesh(transformedPolygon, withName: "polygon\(i)")
         default:
-            break
+            print("default", i)
+            // scale correction stage
+            let footOfPerpendicular = calcPointToLineOrthogonalIntersectionPoint(
+                d: (p1(keylines[1]) - p0(keylines[1])),
+                A0: p0(keylines[1]),
+                pointP: intersectionPoints[1]
+            )
+            
+            let orthVector = footOfPerpendicular - intersectionPoints[1]
+            //selfAnchor := footOfPerpendicular
+            let selfAnotherAnchor = planeLineIntersection(n: normalize(orthVector),
+                                  a: (p0(keylines[0]) + p1(keylines[0])) / 2,
+                                  p0: footOfPerpendicular,
+                                  d: normalize(orthVector))
+            let currentScale = length(selfAnotherAnchor - footOfPerpendicular)
+            
+            //interSectionAnchor := intersectionPoints[1]
+            let anotherIntersectionAnchor = planeLineIntersection(n: normalize(orthVector),
+                                  a: intersectionPoints[0],
+                                  p0: intersectionPoints[1],
+                                  d: normalize(orthVector))
+            let targetScale = length(anotherIntersectionAnchor - intersectionPoints[1])
+            
+            let scaleCorrectionValue = targetScale / currentScale
+            
+            for keylineIndex in 0..<3 {
+                keylines[keylineIndex][0] *= scaleCorrectionValue
+                keylines[keylineIndex][1] *= scaleCorrectionValue
+            }
+            
+            // shift correction stage
+            let shiftCorrectionVector = -calcPointToLineOrthogonalVector(
+                d: (p1(keylines[0]) - p0(keylines[0])),
+                A0: p0(keylines[0]),
+                pointP: intersectionPoints[0]
+            )
+            
+            for keylineIndex in 0..<3 {
+                keylines[keylineIndex][0] += shiftCorrectionVector
+                keylines[keylineIndex][1] += shiftCorrectionVector
+            }
+            
+            var transformedPolygon = rigidTransform3(mesh: transformedPolygon0,
+                                                     translateX: shiftCorrectionVector.x,
+                                                     translateY: shiftCorrectionVector.y,
+                                                     translateZ: shiftCorrectionVector.z,
+                                                     rotateX: 0, rotateY: 0, rotateZ: 0,
+                                                     scaleX: scaleCorrectionValue,
+                                                     scaleY: scaleCorrectionValue,
+                                                     scaleZ: scaleCorrectionValue,
+                                                     minX: -1, maxX: 1, minY: -1, maxY: 1, minZ: -1, maxZ: 1,
+                                                     translateFirst: true)
+            
+            exportMesh(transformedPolygon, withName: "polygon\(i)")
         }
-        ///*
-        var transformedPolygon = rigidTransform3(mesh: node.geometry!,
-                                                 translateX: translate.x, translateY: translate.y, translateZ: translate.z,
-                                                 rotateX: rotate.x, rotateY: rotate.y, rotateZ: rotate.z,
-                                                 scaleX: scale, scaleY: scale, scaleZ: scale,
-                                                 minX: -1, maxX: 1, minY: -1, maxY: 1, minZ: -1, maxZ: 1,
-                                                 translateFirst: true)
-        //*/
-        /*
-        let polygon = Mesh(node.geometry!)?
-            .translated(by: Vector(-Double(1-centerOfObject.x),-Double(1-centerOfObject.y),-1))
-            .rotated(by: Rotation(pitch: Angle.degrees(2*Double.pi*Double(rotate.x)),
-                                  yaw: Angle.degrees(2*Double.pi*Double(rotate.y)),
-                                  roll: Angle.degrees(2*Double.pi*Double(rotate.z))))
-        */
         
-        exportMesh(transformedPolygon, withName: "polygon\(i)")
-        if i == 10 {
-            return transformedPolygon
-        }
+        
     }
     
-
-    //let polygon = Mesh.extrude(targetOutline.paths(), depth: 2.0).translated(by: Vector(-Double(1.0-centerOfObject.x),-Double(1.0-centerOfObject.y),-1))
-    //let polygon = Mesh(node.geometry!)?.translated(by: Vector(-Double(1-centerOfObject.x),-Double(1-centerOfObject.y),-1))
-    //?.translated(by: Vector(-Double(centerOfObject.x),-Double(centerOfObject.y),-1))
-    //generated2023-09-05 17/45/37.obj
-    //
-    //generated2023-09-05 17/48/07.obj
-    //print(polygon!.objString())
     return SCNGeometry()
 }
 
@@ -214,3 +260,26 @@ func planeLineIntersection(n: SIMD3<Float>, a: SIMD3<Float>, p0: SIMD3<Float>, d
     
     return intersectionPoint
 }
+
+
+func calcPointToLineOrthogonalIntersectionPoint(d: SIMD3<Float>, A0: SIMD3<Float>, pointP: SIMD3<Float>) -> SIMD3<Float> {
+
+    let v = pointP - A0
+    // projection
+    let proj_v_d = simd_dot(d, v) / length(d)**2 * d
+    let footOfPerpendicular = A0 + proj_v_d
+    
+    return footOfPerpendicular
+}
+
+func calcPointToLineOrthogonalVector(d: SIMD3<Float>, A0: SIMD3<Float>, pointP: SIMD3<Float>) -> SIMD3<Float> {
+
+    let v = pointP - A0
+    // projection
+    let proj_v_d = simd_dot(d, v) / pow(length(d),2) * d
+    let footOfPerpendicular = A0 + proj_v_d
+    let OrthogonalProjectedVector = footOfPerpendicular - pointP
+    
+    return OrthogonalProjectedVector
+}
+
