@@ -7,23 +7,24 @@
 
 import Foundation
 import SceneKit
-
+import Euclid
 
 func rigidTransform3(mesh: SCNGeometry,
                      translateX: Float, translateY: Float, translateZ: Float,
                      rotateX: Float, rotateY: Float, rotateZ: Float,
                      scaleX: Float, scaleY: Float, scaleZ: Float,
-                     minX: Float32, maxX: Float32,
-                     minY: Float32, maxY: Float32,
-                     minZ: Float32, maxZ: Float32,
-                     translateFirst: Bool) -> SCNGeometry {
+                     doClip: Bool = false,
+                     minX: Float = -Float.infinity, maxX: Float = Float.infinity,
+                     minY: Float = -Float.infinity, maxY: Float = Float.infinity,
+                     minZ: Float = -Float.infinity, maxZ: Float = Float.infinity,
+                     d: SIMD3<Float> = SIMD3<Float>()) -> SCNGeometry {
+    
+    assert((scaleX != 0)&&(scaleY != 0)&&(scaleZ != 0))
     var geometrySources = mesh.sources
     var src :SCNGeometrySource
     var positions: [SCNVector3] = []
     
     let R = simd_make_rotate3(x: rotateX, y: rotateY, z: rotateZ)
-    
-    var maxZ: Float = 0.0
     
     if let vertexSource = geometrySources.first(where: { $0.semantic == .vertex }) {
         let data = vertexSource.data
@@ -33,19 +34,43 @@ func rigidTransform3(mesh: SCNGeometry,
                 let bufferPointer = ptr.bindMemory(to: SCNVector3.self)
                 return bufferPointer[i]
             }
-            let transformedVertex = R * SIMD3<Float>(scaleX * (vertexData.x + translateX),
-                                                     scaleY * (vertexData.y + translateY),
-                                                     scaleZ * (vertexData.z + translateZ))
+            let transformedVertex = R * SIMD3<Float>(scaleX * vertexData.x + translateX,
+                                                     scaleY * vertexData.y + translateY,
+                                                     scaleZ * vertexData.z + translateZ)
             
-            maxZ = max(maxZ, vertexData.z)
-            vertexData.x = transformedVertex.x//min(max(transformedVertex.x, minX), maxX)
-            vertexData.y = transformedVertex.y//min(max(transformedVertex.y, minY), maxY)
-            vertexData.z = transformedVertex.z//min(max(transformedVertex.z, minZ), maxZ)
+            if doClip {
+                var clampingTarget: SIMD3<Float> = transformedVertex
+                
+                if maxX < clampingTarget.x {
+                    clampingTarget = calcPointAtTargetXOnTheLineThroughPoint03(p0: clampingTarget, v: d, targetX: maxX)
+                } else if clampingTarget.x < minX {
+                    clampingTarget = calcPointAtTargetXOnTheLineThroughPoint03(p0: clampingTarget, v: d, targetX: minX)
+                }
+                
+                if maxY < clampingTarget.y {
+                    clampingTarget = calcPointAtTargetYOnTheLineThroughPoint03(p0: clampingTarget, v: d, targetY: maxY)
+                } else if clampingTarget.y < minY {
+                    clampingTarget = calcPointAtTargetYOnTheLineThroughPoint03(p0: clampingTarget, v: d, targetY: minY)
+                }
+                
+                if maxZ < clampingTarget.z {
+                    clampingTarget = calcPointAtTargetZOnTheLineThroughPoint03(p0: clampingTarget, v: d, targetZ: maxZ)
+                } else if clampingTarget.z < minZ {
+                    clampingTarget = calcPointAtTargetZOnTheLineThroughPoint03(p0: clampingTarget, v: d, targetZ: minZ)
+                }
+                
+                let clampedVertex = SCNVector3(clampingTarget)
+                vertexData = clampedVertex
+            } else {
+                vertexData.x = transformedVertex.x
+                vertexData.y = transformedVertex.y
+                vertexData.z = transformedVertex.z
+            }
             
             positions.append(vertexData)
         }
     }
-    print("maxZ: ", maxZ)
+    
     let newData = Data(bytes: positions, count: positions.count * MemoryLayout<SCNVector3>.size)
     
     src = SCNGeometrySource(data: newData,
@@ -59,7 +84,6 @@ func rigidTransform3(mesh: SCNGeometry,
     
     geometrySources[0] = src
     
-    let clippedMesh = SCNGeometry(sources: geometrySources, elements: mesh.elements)
-    
-    return clippedMesh
+    let scnGeometry = SCNGeometry(sources: geometrySources, elements: mesh.elements)
+    return scnGeometry
 }
