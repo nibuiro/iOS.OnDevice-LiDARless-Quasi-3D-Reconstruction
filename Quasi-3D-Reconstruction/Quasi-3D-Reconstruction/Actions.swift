@@ -66,6 +66,8 @@ func makeGenerallyAccurate3dMesh(imageData :ImageData) -> SCNGeometry {
     var referenceKeylines: [[SIMD3<Float>]] = []
     var intersectionPoints: [SIMD3<Float>] = []
     
+    var pointCloud: [Int8] = Array<Int8>(repeating: 0, count: 128*128*128)
+    
     for i in 0..<imageData.nSamples {
         let image : CIImage = imageData.images[i]
         let targetOutline = selectLongestPath(observations: extractObjectOutlines(image))
@@ -81,14 +83,14 @@ func makeGenerallyAccurate3dMesh(imageData :ImageData) -> SCNGeometry {
         var scale: Float = 1.0 // imageData.scales[i]
         var translate = SIMD3<Float>(-(1-centerOfObject.x), -(1-centerOfObject.y), 0)
         var rotate = imageData.rotations[i]
-        rotate.x = (rotate.x - referenceRotation.x)
+        rotate.x = -(rotate.x - referenceRotation.x)
         rotate.y = (rotate.y - referenceRotation.y)
         rotate.z = (rotate.z - referenceRotation.z)
         
         let R = simd_make_rotate3(x: rotate.x, y: rotate.y, z: rotate.z)
         var keylines: [[SIMD3<Float>]] = []
         for keypointIndex in 0..<3 {
-            let keypoint = keypoints[keypointIndex] - (1 - centerOfObject)
+            let keypoint = (1 - keypoints[keypointIndex]) - (1 - centerOfObject)
             keylines.append([R * SIMD3<Float>(keypoint.x, keypoint.y, 1),
                              R * SIMD3<Float>(keypoint.x, keypoint.y, -1)])
         }
@@ -97,8 +99,11 @@ func makeGenerallyAccurate3dMesh(imageData :ImageData) -> SCNGeometry {
                                                  translateX: translate.x, translateY: translate.y, translateZ: translate.z,
                                                  rotateX: rotate.x, rotateY: rotate.y, rotateZ: rotate.z,
                                                  scaleX: 1, scaleY: 1, scaleZ: 1,
-                                                 minX: -1, maxX: 1, minY: -1, maxY: 1, minZ: -1, maxZ: 1,
-                                                 translateFirst: true)
+                                                  doClip: true,
+                                                  minX: -0.5, maxX: 0.5,
+                                                  minY: -0.5, maxY: 0.5,
+                                                  minZ: -0.5, maxZ: 0.5,
+                                                  d: p1(keylines[0]) - p0(keylines[0]))
         
         print("transformedPolygon0", translate, rotate)
         
@@ -110,6 +115,16 @@ func makeGenerallyAccurate3dMesh(imageData :ImageData) -> SCNGeometry {
             }
             
             exportMesh(transformedPolygon0, withName: "polygon\(i)")
+            /*
+            let voxelIndices = geometryToVoxelIndices(inp: transformedPolygon0)
+            let xs = voxelIndices.x
+            let ys = voxelIndices.y
+            let zs = voxelIndices.z
+            for voxelIndex in 0..<xs.count {
+                let pointCloudIndex: Int = Int(xs[voxelIndex]) + 128 * Int(ys[voxelIndex]) + 16384 * Int(zs[voxelIndex])
+                pointCloud[Int(pointCloudIndex)] += 1
+            }*/
+            
         case 1:
             print("start: 1")
             var maxA: Float = -Float.infinity
@@ -137,7 +152,7 @@ func makeGenerallyAccurate3dMesh(imageData :ImageData) -> SCNGeometry {
                     argminA = keylineIndex
                 }
             }
-            let scaleCorrectionValue: Float = abs(referenceKeypointOnXYs[1].x - referenceKeypointOnXYs[2].x) /  abs(KeypointOnXYs[1].x - KeypointOnXYs[2].x)
+            let scaleCorrectionValue: Float = Float(1.0)//abs(referenceKeypointOnXYs[1].x - referenceKeypointOnXYs[2].x) /  abs(KeypointOnXYs[1].x - KeypointOnXYs[2].x)
             let shiftCorrectionVector = -(scaleCorrectionValue * KeypointOnXYs[0] - referenceKeypointOnXYs[0])
             
             for keypointIndex in 0..<3 {
@@ -147,15 +162,38 @@ func makeGenerallyAccurate3dMesh(imageData :ImageData) -> SCNGeometry {
                 ]
             }
             
+            var vertices: [Vertex] = []
+            
             for keypointIndex in 0..<3 {
-                let n = normalize(p1(keylines[keypointIndex]) - p0(keylines[keypointIndex]))
-                let a = SIMD3<Float>(0, 0, 0)
-                let p = p0(referenceKeylines[keypointIndex])
                 let d = p1(referenceKeylines[keypointIndex]) - p0(referenceKeylines[keypointIndex])
-                let intersectionPoint = planeLineIntersection(n: n, a: a, p0: p, d: d)
-                print(intersectionPoint)
+                
+                let pointA = Point2<Float>(p0(keylines[keypointIndex]).z,
+                                           p0(keylines[keypointIndex]).y)
+                let pointB = Point2<Float>(p1(keylines[keypointIndex]).z,
+                                           p1(keylines[keypointIndex]).y)
+                let pointC = Point2<Float>(p0(referenceKeylines[keypointIndex]).z,
+                                           p0(referenceKeylines[keypointIndex]).y)
+                let pointD = Point2<Float>(p1(referenceKeylines[keypointIndex]).z,
+                                           p1(referenceKeylines[keypointIndex]).y)
+                print(pointA, pointB, pointC, pointD)
+                let intersectionPointYZ = calcIntersectionPointFromPointPairs2(A: pointA,
+                                                                               B: pointB,
+                                                                               C: pointC,
+                                                                               D: pointD)
+                
+                let intersectionPoint = calcPointAtTargetZOnTheLineThroughPoint03(
+                    p0: p0(referenceKeylines[keypointIndex]),
+                    v: d,
+                    targetZ: intersectionPointYZ.x
+                )
+                
+                print("intersectionPoint: ", intersectionPoint)
                 intersectionPoints.append(intersectionPoint)
+                vertices.append(Vertex(Vector(Double(intersectionPoint.x),
+                                              Double(intersectionPoint.y),
+                                              Double(intersectionPoint.z))))
             }
+            exportMesh(SCNGeometry(Mesh([Polygon(vertices)!])), withName: "intersectionPoints")
             
             var transformedPolygon = rigidTransform3(mesh: transformedPolygon0,
                                                      translateX: shiftCorrectionVector.x,
@@ -165,35 +203,42 @@ func makeGenerallyAccurate3dMesh(imageData :ImageData) -> SCNGeometry {
                                                      scaleX: scaleCorrectionValue,
                                                      scaleY: scaleCorrectionValue,
                                                      scaleZ: scaleCorrectionValue,
-                                                     minX: -1, maxX: 1, minY: -1, maxY: 1, minZ: -1, maxZ: 1,
-                                                     translateFirst: true)
+                                                     doClip: true,
+                                                     minX: -0.5, maxX: 0.5,
+                                                     minY: -0.5, maxY: 0.5,
+                                                     minZ: -0.5, maxZ: 0.5,
+                                                     d: p1(keylines[0]) - p0(keylines[0]))
             
             exportMesh(transformedPolygon, withName: "polygon\(i)")
+            /*
+            let voxelIndices = geometryToVoxelIndices(inp: transformedPolygon)
+            let xs = voxelIndices.x
+            let ys = voxelIndices.y
+            let zs = voxelIndices.z
+            for voxelIndex in 0..<xs.count {
+                let pointCloudIndex: UInt32 = xs[voxelIndex] + 128 * ys[voxelIndex] + 16384 * zs[voxelIndex]
+                pointCloud[Int(pointCloudIndex)] += 1
+            }
+             */
         default:
             print("default", i)
             // scale correction stage
-            let footOfPerpendicular = calcPointToLineOrthogonalIntersectionPoint(
+            let sourceAnchor0 = (p0(keylines[0]) + p1(keylines[0])) / 2
+            let sourceAnchor1 = calcPointToLineOrthogonalIntersectionPoint(
                 d: (p1(keylines[1]) - p0(keylines[1])),
                 A0: p0(keylines[1]),
-                pointP: intersectionPoints[1]
-            )
+                pointP: sourceAnchor0)
             
-            let orthVector = footOfPerpendicular - intersectionPoints[1]
-            //selfAnchor := footOfPerpendicular
-            let selfAnotherAnchor = planeLineIntersection(n: normalize(orthVector),
-                                  a: (p0(keylines[0]) + p1(keylines[0])) / 2,
-                                  p0: footOfPerpendicular,
-                                  d: normalize(orthVector))
-            let currentScale = length(selfAnotherAnchor - footOfPerpendicular)
+            let targetAnchor0 = intersectionPoints[0]
+            let targetAnchor1 = calcPointToLineOrthogonalIntersectionPoint(
+                d: (p1(keylines[1]) - p0(keylines[1])),
+                A0: intersectionPoints[1],
+                pointP: targetAnchor0)
             
-            //interSectionAnchor := intersectionPoints[1]
-            let anotherIntersectionAnchor = planeLineIntersection(n: normalize(orthVector),
-                                  a: intersectionPoints[0],
-                                  p0: intersectionPoints[1],
-                                  d: normalize(orthVector))
-            let targetScale = length(anotherIntersectionAnchor - intersectionPoints[1])
+            let sourceScale = length(sourceAnchor1 - sourceAnchor0)
+            let targetScale = length(targetAnchor1 - targetAnchor0)
             
-            let scaleCorrectionValue = targetScale / currentScale
+            let scaleCorrectionValue = targetScale / sourceScale
             
             for keylineIndex in 0..<3 {
                 keylines[keylineIndex][0] *= scaleCorrectionValue
@@ -201,11 +246,13 @@ func makeGenerallyAccurate3dMesh(imageData :ImageData) -> SCNGeometry {
             }
             
             // shift correction stage
-            let shiftCorrectionVector = -calcPointToLineOrthogonalVector(
-                d: (p1(keylines[0]) - p0(keylines[0])),
-                A0: p0(keylines[0]),
-                pointP: intersectionPoints[0]
-            )
+            let centerOfKeyline0 = (p1(keylines[0]) + p0(keylines[0])) / 2
+            let centerOfKeyline1 = (p1(keylines[1]) + p0(keylines[1])) / 2
+            let centerOfKeyline2 = (p1(keylines[2]) + p0(keylines[2])) / 2
+            
+            let currentCenterPoint = (centerOfKeyline0 + centerOfKeyline1 + centerOfKeyline2) / 3
+            let targetCenterPoint = (intersectionPoints[0] + intersectionPoints[1] + intersectionPoints[2]) / 3
+            let shiftCorrectionVector = targetCenterPoint - currentCenterPoint
             
             for keylineIndex in 0..<3 {
                 keylines[keylineIndex][0] += shiftCorrectionVector
@@ -220,66 +267,51 @@ func makeGenerallyAccurate3dMesh(imageData :ImageData) -> SCNGeometry {
                                                      scaleX: scaleCorrectionValue,
                                                      scaleY: scaleCorrectionValue,
                                                      scaleZ: scaleCorrectionValue,
-                                                     minX: -1, maxX: 1, minY: -1, maxY: 1, minZ: -1, maxZ: 1,
-                                                     translateFirst: true)
-            
+                                                     doClip: true,
+                                                     minX: -0.5, maxX: 0.5,
+                                                     minY: -0.5, maxY: 0.5,
+                                                     minZ: -0.5, maxZ: 0.5,
+                                                     d: p1(keylines[0]) - p0(keylines[0]))
             exportMesh(transformedPolygon, withName: "polygon\(i)")
+            /*
+            let voxelIndices = geometryToVoxelIndices(inp: transformedPolygon)
+            let xs = voxelIndices.x
+            let ys = voxelIndices.y
+            let zs = voxelIndices.z
+            for voxelIndex in 0..<xs.count {
+                let pointCloudIndex: Int32 = xs[voxelIndex] + 128 * ys[voxelIndex] + 16384 * zs[voxelIndex]
+                pointCloud[Int(pointCloudIndex)] += 1
+            }
+            */
         }
+        /*
+        var vertices: [vector_int3] = []
+        for pointCloudIndex in 0..<pointCloud.count {
+            if  (3 <= pointCloud[pointCloudIndex]) {
+                let x = Int(pointCloudIndex % 128)
+                let y = Int(((pointCloudIndex - x) % 16384) / 128)
+                let z = Int((pointCloudIndex - x - y) / 16384)
+                vertices.append(vector_int3(Int32(x),Int32(y),Int32(z)))
+            }
+        }
+        let newData = Data(bytes: vertices, count: vertices.count * MemoryLayout<vector_int3>.size)
+        let mdlMesh = MDLVoxelArray(data: newData,
+                      boundingBox: MDLAxisAlignedBoundingBox(maxBounds: vector_float3(100,
+                                                                                      100,
+                                                                                      100),
+                                                             minBounds: vector_float3(-100,
+                                                                                      -100,
+                                                                                      -100)),
+                                    voxelExtent: 100000).mesh(using: nil)
+        let asset2 = MDLAsset()
+        asset2.add(mdlMesh!)
+        
+        let outNode = asset2.object(at: 0)
+        let out = SCNNode(mdlObject: outNode).geometry
+        */
         
         
     }
     
     return SCNGeometry()
 }
-
-
-
-func calcPointAtTargetZOnTheLineThrough2Points(p0: SIMD3<Float>, p1: SIMD3<Float>, targetZ: Float) -> SIMD3<Float> {
-    // XY平面
-    let v = p1 - p0
-    let t = (targetZ - p0.z) / v.z
-    let x = p0.x + t * v.x
-    let y = p0.y + t * v.y
-    let point = SIMD3<Float>(x, y, targetZ)
-    
-    return point
-}
-
-
-func planeLineIntersection(n: SIMD3<Float>, a: SIMD3<Float>, p0: SIMD3<Float>, d: SIMD3<Float>) -> SIMD3<Float> {
-    let nDotD = simd_dot(n, d)
-    
-    // normal vector and line are orthonal
-    if nDotD == 0 {
-        return SIMD3<Float>(0,0,0)
-    }
-    
-    let t = simd_dot(n, a - p0) / nDotD
-    
-    let intersectionPoint = p0 + t * d
-    
-    return intersectionPoint
-}
-
-
-func calcPointToLineOrthogonalIntersectionPoint(d: SIMD3<Float>, A0: SIMD3<Float>, pointP: SIMD3<Float>) -> SIMD3<Float> {
-
-    let v = pointP - A0
-    // projection
-    let proj_v_d = simd_dot(d, v) / length(d)**2 * d
-    let footOfPerpendicular = A0 + proj_v_d
-    
-    return footOfPerpendicular
-}
-
-func calcPointToLineOrthogonalVector(d: SIMD3<Float>, A0: SIMD3<Float>, pointP: SIMD3<Float>) -> SIMD3<Float> {
-
-    let v = pointP - A0
-    // projection
-    let proj_v_d = simd_dot(d, v) / pow(length(d),2) * d
-    let footOfPerpendicular = A0 + proj_v_d
-    let OrthogonalProjectedVector = footOfPerpendicular - pointP
-    
-    return OrthogonalProjectedVector
-}
-
