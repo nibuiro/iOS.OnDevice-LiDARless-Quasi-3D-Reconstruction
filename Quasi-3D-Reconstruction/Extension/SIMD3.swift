@@ -27,7 +27,7 @@ func simd_make_rotate3(x: Float, y: Float, z: Float) -> simd_float3x3
     
     let Rzyx = Rz * Ry * Rx
     
-    return Rzyx
+    return Rzyx.transpose
 }
 
 func simd_make_rotate3(angle: Float, axis: SIMD3<Float>) -> simd_float3x3

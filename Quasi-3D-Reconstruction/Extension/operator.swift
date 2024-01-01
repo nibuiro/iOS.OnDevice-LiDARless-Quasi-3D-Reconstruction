@@ -19,6 +19,10 @@ func ** (_ base: Double, _ exp: Double) -> Double {
   return pow(base, exp)
 }
 
+func ** (_ base: Float, _ exp: Float) -> Float {
+  return pow(base, exp)
+}
+
 func ** (_ base: simd_float3x3, _ exp: Int) -> simd_float3x3 {
     var ret = base
     for _ in 0..<(exp-1) {

@@ -56,7 +56,7 @@ func makeGenerallyAccurate3dMesh(imageData :ImageData) -> SCNGeometry {
     //let referenceCoodinate : SIMD3<Float> = relativePositions[0]
     //let referenceLength : Float = simd.length(referenceCoodinate)
     
-    //let referenceFrustumHeight = 2.0 * referenceLength * tan(fieldOfView * 0.5 * deg2rad);
+    //let referenceFrustumHeight = 2.0 * referenceLength * tan(fieldOfView * 0.4 * deg2rad);
     let p0 = { (arr: [SIMD3<Float>]) -> SIMD3<Float> in arr[0] }
     let p1 = { (arr: [SIMD3<Float>]) -> SIMD3<Float> in arr[1] }
     
@@ -66,7 +66,7 @@ func makeGenerallyAccurate3dMesh(imageData :ImageData) -> SCNGeometry {
     var referenceKeylines: [[SIMD3<Float>]] = []
     var intersectionPoints: [SIMD3<Float>] = []
     
-    var pointCloud: [Int8] = Array<Int8>(repeating: 0, count: 128*128*128)
+    var geometries: [SCNGeometry] = []
     
     for i in 0..<imageData.nSamples {
         let image : CIImage = imageData.images[i]
@@ -83,9 +83,48 @@ func makeGenerallyAccurate3dMesh(imageData :ImageData) -> SCNGeometry {
         var scale: Float = 1.0 // imageData.scales[i]
         var translate = SIMD3<Float>(-(1-centerOfObject.x), -(1-centerOfObject.y), 0)
         var rotate = imageData.rotations[i]
-        rotate.x = -(rotate.x - referenceRotation.x)
-        rotate.y = (rotate.y - referenceRotation.y)
+        rotate.x = (rotate.x - referenceRotation.x)
+        rotate.y = -(rotate.y - referenceRotation.y)
         rotate.z = (rotate.z - referenceRotation.z)
+        
+        if 0 == i {
+            rotate.x = 0
+            rotate.y = 0
+        }
+        if 1 == i {
+            rotate.x = -Float.pi / 4
+            rotate.y = 0
+        }
+        if 12 == i {
+            rotate.x = -Float.pi / 4
+            rotate.y = Float.pi / 4
+            rotate.z += -Float.pi / 4
+        }
+        if 2 == i {
+            rotate.x = 0//Float.pi / 2
+            rotate.y = Float.pi / 2
+        }
+        if 4 == i {
+            rotate.x = -Float.pi / 4
+            rotate.y = -Float.pi / 4
+            rotate.z += Float.pi / 4
+        }
+        if 9 == i {
+            rotate.x = -Float.pi / 4
+            rotate.y = -3 * Float.pi / 4
+            rotate.z += 3 * Float.pi / 4
+        }
+        if 6 == i {
+            rotate.x = -Float.pi / 4
+            rotate.y = -3 * Float.pi / 4
+            rotate.z += 3 * Float.pi / 4
+        }
+        if 3 == i {
+            rotate.x = -Float.pi / 2
+            rotate.y = 0
+            rotate.z = 0
+        }
+        print("rotate: (x,y,z) = ", rotate.x, rotate.y, rotate.z)
         
         let R = simd_make_rotate3(x: rotate.x, y: rotate.y, z: rotate.z)
         var keylines: [[SIMD3<Float>]] = []
@@ -98,11 +137,11 @@ func makeGenerallyAccurate3dMesh(imageData :ImageData) -> SCNGeometry {
         var transformedPolygon0 = rigidTransform3(mesh: node.geometry!,
                                                  translateX: translate.x, translateY: translate.y, translateZ: translate.z,
                                                  rotateX: rotate.x, rotateY: rotate.y, rotateZ: rotate.z,
-                                                 scaleX: 1, scaleY: 1, scaleZ: 1,
-                                                  doClip: true,
-                                                  minX: -0.5, maxX: 0.5,
-                                                  minY: -0.5, maxY: 0.5,
-                                                  minZ: -0.5, maxZ: 0.5,
+                                                  scaleX: 1.0, scaleY: 1.0, scaleZ: 1.0,
+                                                  doClip: false,
+                                                  minX: -0.4, maxX: 0.4,
+                                                  minY: -0.4, maxY: 0.4,
+                                                  minZ: -0.4, maxZ: 0.4,
                                                   d: p1(keylines[0]) - p0(keylines[0]))
         
         print("transformedPolygon0", translate, rotate)
@@ -114,16 +153,22 @@ func makeGenerallyAccurate3dMesh(imageData :ImageData) -> SCNGeometry {
                 referenceKeylines.append(keylines[keylineIndex])
             }
             
-            exportMesh(transformedPolygon0, withName: "polygon\(i)")
-            /*
-            let voxelIndices = geometryToVoxelIndices(inp: transformedPolygon0)
-            let xs = voxelIndices.x
-            let ys = voxelIndices.y
-            let zs = voxelIndices.z
-            for voxelIndex in 0..<xs.count {
-                let pointCloudIndex: Int = Int(xs[voxelIndex]) + 128 * Int(ys[voxelIndex]) + 16384 * Int(zs[voxelIndex])
-                pointCloud[Int(pointCloudIndex)] += 1
-            }*/
+            var transformedPolygon = rigidTransform3(mesh: transformedPolygon0,
+                                                     translateX: 0,
+                                                     translateY: 0,
+                                                     translateZ: 0,
+                                                     rotateX: 0, rotateY: 0, rotateZ: 0,
+                                                     scaleX: 1,
+                                                     scaleY: 1,
+                                                     scaleZ: 1,
+                                                     doClip: true,
+                                                     minX: -0.4, maxX: 0.4,
+                                                     minY: -0.4, maxY: 0.4,
+                                                     minZ: -0.4, maxZ: 0.4,
+                                                     d: p1(keylines[0]) - p0(keylines[0]))
+            
+            exportMesh(transformedPolygon, withName: "polygon\(i)")
+            geometries.append(transformedPolygon)
             
         case 1:
             print("start: 1")
@@ -193,6 +238,8 @@ func makeGenerallyAccurate3dMesh(imageData :ImageData) -> SCNGeometry {
                                               Double(intersectionPoint.y),
                                               Double(intersectionPoint.z))))
             }
+            exportMesh(transformedPolygon0, withName: "_polygon\(i)")
+            
             exportMesh(SCNGeometry(Mesh([Polygon(vertices)!])), withName: "intersectionPoints")
             
             var transformedPolygon = rigidTransform3(mesh: transformedPolygon0,
@@ -204,22 +251,15 @@ func makeGenerallyAccurate3dMesh(imageData :ImageData) -> SCNGeometry {
                                                      scaleY: scaleCorrectionValue,
                                                      scaleZ: scaleCorrectionValue,
                                                      doClip: true,
-                                                     minX: -0.5, maxX: 0.5,
-                                                     minY: -0.5, maxY: 0.5,
-                                                     minZ: -0.5, maxZ: 0.5,
+                                                     minX: -0.4, maxX: 0.4,
+                                                     minY: -0.4, maxY: 0.4,
+                                                     minZ: -0.4, maxZ: 0.4,
                                                      d: p1(keylines[0]) - p0(keylines[0]))
             
             exportMesh(transformedPolygon, withName: "polygon\(i)")
-            /*
-            let voxelIndices = geometryToVoxelIndices(inp: transformedPolygon)
-            let xs = voxelIndices.x
-            let ys = voxelIndices.y
-            let zs = voxelIndices.z
-            for voxelIndex in 0..<xs.count {
-                let pointCloudIndex: UInt32 = xs[voxelIndex] + 128 * ys[voxelIndex] + 16384 * zs[voxelIndex]
-                pointCloud[Int(pointCloudIndex)] += 1
-            }
-             */
+            
+            geometries.append(transformedPolygon)
+             
         default:
             print("default", i)
             // scale correction stage
@@ -238,7 +278,7 @@ func makeGenerallyAccurate3dMesh(imageData :ImageData) -> SCNGeometry {
             let sourceScale = length(sourceAnchor1 - sourceAnchor0)
             let targetScale = length(targetAnchor1 - targetAnchor0)
             
-            let scaleCorrectionValue = targetScale / sourceScale
+            var scaleCorrectionValue = targetScale / sourceScale
             
             for keylineIndex in 0..<3 {
                 keylines[keylineIndex][0] *= scaleCorrectionValue
@@ -259,6 +299,8 @@ func makeGenerallyAccurate3dMesh(imageData :ImageData) -> SCNGeometry {
                 keylines[keylineIndex][1] += shiftCorrectionVector
             }
             
+            if 2 == i { scaleCorrectionValue *= 1.3 }
+            
             var transformedPolygon = rigidTransform3(mesh: transformedPolygon0,
                                                      translateX: shiftCorrectionVector.x,
                                                      translateY: shiftCorrectionVector.y,
@@ -268,50 +310,26 @@ func makeGenerallyAccurate3dMesh(imageData :ImageData) -> SCNGeometry {
                                                      scaleY: scaleCorrectionValue,
                                                      scaleZ: scaleCorrectionValue,
                                                      doClip: true,
-                                                     minX: -0.5, maxX: 0.5,
-                                                     minY: -0.5, maxY: 0.5,
-                                                     minZ: -0.5, maxZ: 0.5,
+                                                     minX: -0.4, maxX: 0.4,
+                                                     minY: -0.4, maxY: 0.4,
+                                                     minZ: -0.4, maxZ: 0.4,
                                                      d: p1(keylines[0]) - p0(keylines[0]))
             exportMesh(transformedPolygon, withName: "polygon\(i)")
-            /*
-            let voxelIndices = geometryToVoxelIndices(inp: transformedPolygon)
-            let xs = voxelIndices.x
-            let ys = voxelIndices.y
-            let zs = voxelIndices.z
-            for voxelIndex in 0..<xs.count {
-                let pointCloudIndex: Int32 = xs[voxelIndex] + 128 * ys[voxelIndex] + 16384 * zs[voxelIndex]
-                pointCloud[Int(pointCloudIndex)] += 1
-            }
-            */
+            
+            geometries.append(transformedPolygon)
+            
         }
-        /*
-        var vertices: [vector_int3] = []
-        for pointCloudIndex in 0..<pointCloud.count {
-            if  (3 <= pointCloud[pointCloudIndex]) {
-                let x = Int(pointCloudIndex % 128)
-                let y = Int(((pointCloudIndex - x) % 16384) / 128)
-                let z = Int((pointCloudIndex - x - y) / 16384)
-                vertices.append(vector_int3(Int32(x),Int32(y),Int32(z)))
-            }
-        }
-        let newData = Data(bytes: vertices, count: vertices.count * MemoryLayout<vector_int3>.size)
-        let mdlMesh = MDLVoxelArray(data: newData,
-                      boundingBox: MDLAxisAlignedBoundingBox(maxBounds: vector_float3(100,
-                                                                                      100,
-                                                                                      100),
-                                                             minBounds: vector_float3(-100,
-                                                                                      -100,
-                                                                                      -100)),
-                                    voxelExtent: 100000).mesh(using: nil)
-        let asset2 = MDLAsset()
-        asset2.add(mdlMesh!)
-        
-        let outNode = asset2.object(at: 0)
-        let out = SCNNode(mdlObject: outNode).geometry
-        */
-        
         
     }
+    
+    var intersection = Mesh(geometries[0])!.intersect(Mesh(geometries[1])!)
+    intersection = intersection.intersect(Mesh(geometries[2])!)
+    //intersection = intersection.intersect(Mesh(geometries[4])!)
+    intersection = intersection.intersect(Mesh(geometries[3])!)
+    //intersection = intersection.intersect(Mesh(geometries[6])!)
+    //intersection = intersection.intersect(Mesh(geometries[7])!)
+    
+    exportMesh(SCNGeometry(intersection), withName: "result")
     
     return SCNGeometry()
 }

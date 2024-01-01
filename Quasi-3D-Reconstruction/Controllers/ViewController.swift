@@ -10,14 +10,28 @@ import SceneKit
 import ARKit
 import Foundation
 
+func checkAccessible<T>(_ inp: T?, doAbort: Bool = true) -> Bool {
+    let isAccessible = (nil != inp)
+    if isAccessible {
+        return true
+    } else {
+        if doAbort {
+            abort()
+        }
+        return false
+    }
+}
+
 class ViewController: UIViewController, ARSCNViewDelegate {
 
+    @IBOutlet weak var captureButton: UIButton!
+    @IBOutlet weak var exportButton: UIButton!
     @IBOutlet var sceneView: ARSCNView!
+    @IBOutlet var label: UILabel!
     
-    let focusMarkers : [FocusMarker] = []
-    var counter = 0
+    var focusMarkers : [FocusMarker] = []
     let imageData : ImageData = ImageData()
-    var objectCenterPosition :SIMD3<Float> = SIMD3<Float>(0,0,0)
+    var objectCenterPosition :SIMD3<Float>? = nil
     let startTime: Int64 = Int64(NSDate().timeIntervalSince1970)
     
     var dbgMeM002: Int64 = Int64(NSDate().timeIntervalSince1970)
@@ -33,6 +47,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     var dbgmem004: Int = 0 //counter
     var dbgmem005: Bool = false //isCaptureAvilable
     var dbgmem006: Bool = false //isReadyToMakePolygon
+    var dbgmem008 = once<SIMD3<Float>>(SIMD3<Float>())
+    var dbgmem009 = 0 //captureCounter
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -44,8 +60,10 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         // Show statistics such as fps and timing information
         sceneView.showsStatistics = true
 
-        for i in 0..<5 {
-            focusMarkers[i].initialize(parentNode: sceneView.scene.rootNode)
+        for _ in 0..<3 {
+            let focusMarker = FocusMarker()
+            focusMarker.initialize(parentNode: sceneView.scene.rootNode)
+            focusMarkers.append(focusMarker)
         }
         
     }
@@ -81,16 +99,6 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         defer {
             dbgmem004 += 1
         }
-        if (1 <= dbgmem004) && (dbgmem004 <= 10) {
-            print(dbgmem004)
-            dbgmem005 = true
-        }
-        if 10 == dbgmem004 {
-            dbgmem006 = true
-        }
-        if 0 < dbgmem004 {
-            return
-        }
         var isTouchedPositionObtained :Bool = false
         var touchedPosition :SIMD3<Float> = SIMD3(0, 0, 0)
         
@@ -100,36 +108,42 @@ class ViewController: UIViewController, ARSCNViewDelegate {
             if let hitTestResult = results.first {
                 isTouchedPositionObtained = true
                 touchedPosition = simd_make_float3(hitTestResult.worldTransform.columns.3)
-                //print(touchedPosition)
             }
-            
         }
         
-        if isTouchedPositionObtained {
-            focusMarkers[counter].update(at: touchedPosition)
-        }
         
         if isTouchedPositionObtained && isARPlaneAnchorPositionObtained {
-            objectCenterPosition = SIMD3<Float>(
-                touchedPosition.x,
-                //plane+(tap-plane)/2
-                arPlaneAnchorPosition.y + (touchedPosition.y - arPlaneAnchorPosition.y) / 2, 
-                touchedPosition.z
-            )
             
-            let redDotGeometry = SCNSphere(radius: 0.003)
-            let redDotMaterial = SCNMaterial()
-            redDotMaterial.diffuse.contents = UIColor.blue
-            redDotGeometry.materials = [redDotMaterial]
-            let centerMarker = SCNNode()
-            centerMarker.geometry = redDotGeometry
-            centerMarker.position = SCNVector3(objectCenterPosition)
-            //expected parentNode: sceneView.scene.rootNode
-            sceneView.scene.rootNode.addChildNode(centerMarker)
+            if dbgmem004 < 5 {
+                focusMarkers[dbgmem004].update(at: touchedPosition)
+            }
             
-            
-            measureRelativeObjectScale = setupScaleMesure(sceneView: sceneView, referencePosition: objectCenterPosition)
-            //print("objectCenterPosition: ", objectCenterPosition)
+            if 0 == dbgmem004 {
+                
+                precondition(nil == objectCenterPosition)
+                
+                objectCenterPosition = SIMD3<Float>(
+                    touchedPosition.x,
+                    //plane+(tap-plane)/2
+                    arPlaneAnchorPosition.y + (touchedPosition.y - arPlaneAnchorPosition.y) / 2,
+                    touchedPosition.z
+                )
+                
+                let redDotGeometry = SCNSphere(radius: 0.003)
+                let redDotMaterial = SCNMaterial()
+                redDotMaterial.diffuse.contents = UIColor.blue
+                redDotGeometry.materials = [redDotMaterial]
+                let centerMarker = SCNNode()
+                centerMarker.geometry = redDotGeometry
+                centerMarker.position = SCNVector3(objectCenterPosition!)
+                
+                
+                //expected parentNode: sceneView.scene.rootNode
+                sceneView.scene.rootNode.addChildNode(centerMarker)
+                
+                
+                measureRelativeObjectScale = setupScaleMesure(sceneView: sceneView, referencePosition: objectCenterPosition!)
+            }
         }
 
         
@@ -164,5 +178,15 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     func sessionInterruptionEnded(_ session: ARSession) {
         // Reset tracking and/or remove existing anchors if consistent tracking is required
         
+    }
+    @IBAction func Capture(_ sender: Any) {
+        dbgmem005 = true
+    }
+    @IBAction func Export(_ sender: Any) {
+        makeGenerallyAccurate3dMesh(imageData: imageData)
+    }
+    @IBAction func Remove(_ sender: Any) {
+        dbgmem004 -= 1
+        focusMarkers[dbgmem004].initialize(parentNode: sceneView.scene.rootNode)
     }
 }

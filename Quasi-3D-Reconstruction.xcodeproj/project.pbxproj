@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		2A5B23BBAB4031BB38A39491 /* Pods_Quasi-3D-Reconstruction.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E6CD6D43AE6C7C23F63765D /* Pods_Quasi-3D-Reconstruction.framework */; };
+		5921F8A92AC16B25001D316D /* VoxelOperation.metal in Sources */ = {isa = PBXBuildFile; fileRef = 5921F8A82AC16B25001D316D /* VoxelOperation.metal */; };
+		5921F8AB2AC16E9E001D316D /* VoxelInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5921F8AA2AC16E9E001D316D /* VoxelInterface.swift */; };
+		5921F8AD2AC2A42A001D316D /* LinearAlgebra.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5921F8AC2AC2A42A001D316D /* LinearAlgebra.swift */; };
 		593FBEB72A8230D4005916D0 /* ExtractObjectOutlines.swift in Sources */ = {isa = PBXBuildFile; fileRef = 593FBEB62A8230D4005916D0 /* ExtractObjectOutlines.swift */; };
 		593FBEBA2A86118B005916D0 /* CGPath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 593FBEB92A86118B005916D0 /* CGPath.swift */; };
 		595B1FE02A7416710059D19F /* RecordingGuideUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 595B1FDF2A7416710059D19F /* RecordingGuideUI.swift */; };
@@ -27,10 +30,14 @@
 		59AB0DB92AA9DCAA0051C4D5 /* MeshClipping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59AB0DB82AA9DCAA0051C4D5 /* MeshClipping.swift */; };
 		59AB0DBB2AAA2D940051C4D5 /* RigidTransformation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59AB0DBA2AAA2D940051C4D5 /* RigidTransformation.swift */; };
 		59AB0DC12AB148E40051C4D5 /* operator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59AB0DC02AB148E40051C4D5 /* operator.swift */; };
+		59B804582AB9773300B7DA1F /* once.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59B804572AB9773300B7DA1F /* once.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		3E6CD6D43AE6C7C23F63765D /* Pods_Quasi-3D-Reconstruction.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Quasi-3D-Reconstruction.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		5921F8A82AC16B25001D316D /* VoxelOperation.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = VoxelOperation.metal; sourceTree = "<group>"; };
+		5921F8AA2AC16E9E001D316D /* VoxelInterface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoxelInterface.swift; sourceTree = "<group>"; };
+		5921F8AC2AC2A42A001D316D /* LinearAlgebra.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinearAlgebra.swift; sourceTree = "<group>"; };
 		593FBEB62A8230D4005916D0 /* ExtractObjectOutlines.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtractObjectOutlines.swift; sourceTree = "<group>"; };
 		593FBEB92A86118B005916D0 /* CGPath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGPath.swift; sourceTree = "<group>"; };
 		595B1FDF2A7416710059D19F /* RecordingGuideUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingGuideUI.swift; sourceTree = "<group>"; };
@@ -51,6 +58,7 @@
 		59AB0DB82AA9DCAA0051C4D5 /* MeshClipping.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeshClipping.swift; sourceTree = "<group>"; };
 		59AB0DBA2AAA2D940051C4D5 /* RigidTransformation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RigidTransformation.swift; sourceTree = "<group>"; };
 		59AB0DC02AB148E40051C4D5 /* operator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = operator.swift; sourceTree = "<group>"; };
+		59B804572AB9773300B7DA1F /* once.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = once.swift; sourceTree = "<group>"; };
 		AD093C931D01528D9BC1ACC9 /* Pods-Quasi-3D-Reconstruction.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Quasi-3D-Reconstruction.debug.xcconfig"; path = "Target Support Files/Pods-Quasi-3D-Reconstruction/Pods-Quasi-3D-Reconstruction.debug.xcconfig"; sourceTree = "<group>"; };
 		B9E65DAE30FF56A4D1AABF4E /* Pods-Quasi-3D-Reconstruction.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Quasi-3D-Reconstruction.release.xcconfig"; path = "Target Support Files/Pods-Quasi-3D-Reconstruction/Pods-Quasi-3D-Reconstruction.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -75,6 +83,13 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		5921F8B02AC54F11001D316D /* Test */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Test;
+			sourceTree = "<group>";
+		};
 		593FBEB52A8230BE005916D0 /* ImageProcessing */ = {
 			isa = PBXGroup;
 			children = (
@@ -97,9 +112,13 @@
 		595B1FDE2A74160F0059D19F /* Quasi-3D-Reconstruction */ = {
 			isa = PBXGroup;
 			children = (
+				5921F8B02AC54F11001D316D /* Test */,
+				595B1FE32A74174A0059D19F /* Actions.swift */,
 				595B1FDF2A7416710059D19F /* RecordingGuideUI.swift */,
 				595B1FE12A7416C50059D19F /* ImageData.swift */,
-				595B1FE32A74174A0059D19F /* Actions.swift */,
+				5921F8A82AC16B25001D316D /* VoxelOperation.metal */,
+				5921F8AA2AC16E9E001D316D /* VoxelInterface.swift */,
+				5921F8AC2AC2A42A001D316D /* LinearAlgebra.swift */,
 			);
 			path = "Quasi-3D-Reconstruction";
 			sourceTree = "<group>";
@@ -135,6 +154,7 @@
 		595CE8582A4EADB700D13DA5 /* Quasi-3D-Reconstruction */ = {
 			isa = PBXGroup;
 			children = (
+				59B804562AB9770700B7DA1F /* SwiftExtension */,
 				59AB0DB72AA9DC780051C4D5 /* MeshProcessing */,
 				598299C52A9F92E200C81714 /* IO */,
 				593FBEB82A861149005916D0 /* Extension */,
@@ -165,6 +185,14 @@
 				59AB0DBA2AAA2D940051C4D5 /* RigidTransformation.swift */,
 			);
 			path = MeshProcessing;
+			sourceTree = "<group>";
+		};
+		59B804562AB9770700B7DA1F /* SwiftExtension */ = {
+			isa = PBXGroup;
+			children = (
+				59B804572AB9773300B7DA1F /* once.swift */,
+			);
+			path = SwiftExtension;
 			sourceTree = "<group>";
 		};
 		C8CA4AAA21D5A7DEC1FEB41E /* Pods */ = {
@@ -294,6 +322,7 @@
 			files = (
 				598299C42A9CE4AF00C81714 /* CIImage.swift in Sources */,
 				595B1FE42A74174A0059D19F /* Actions.swift in Sources */,
+				5921F8AB2AC16E9E001D316D /* VoxelInterface.swift in Sources */,
 				59AB0DBB2AAA2D940051C4D5 /* RigidTransformation.swift in Sources */,
 				595B1FE02A7416710059D19F /* RecordingGuideUI.swift in Sources */,
 				593FBEBA2A86118B005916D0 /* CGPath.swift in Sources */,
@@ -302,6 +331,9 @@
 				598299C22A9C8DF900C81714 /* export-mesh.swift in Sources */,
 				59AB0DB92AA9DCAA0051C4D5 /* MeshClipping.swift in Sources */,
 				598299EE2AA39A7000C81714 /* SIMD3.swift in Sources */,
+				59B804582AB9773300B7DA1F /* once.swift in Sources */,
+				5921F8A92AC16B25001D316D /* VoxelOperation.metal in Sources */,
+				5921F8AD2AC2A42A001D316D /* LinearAlgebra.swift in Sources */,
 				595B1FE62A74C65C0059D19F /* ViewController+ARSessionDelegate.swift in Sources */,
 				595B1FE22A7416C50059D19F /* ImageData.swift in Sources */,
 				59AB0DC12AB148E40051C4D5 /* operator.swift in Sources */,
