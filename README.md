@@ -6,6 +6,10 @@
 git clone git@github.com:nibuiro/iOS.OnDevice-Quasi-3D-Reconstruction.git
 cd iOS.OnDevice-Quasi-3D-Reconstruction
 pod install
+cd Quasi-3D-Reconstruction
+cat u2net.mlmodel.zip-* > u2net.mlmodel.zip
+unzip u2net.mlmodel.zip
+cd -
 xed .
 ```
 2. Set Signing
